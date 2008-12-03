@@ -13,26 +13,17 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
-import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import ymsg.network.Session;
-import ymsg.network.SessionAdapter;
-import ymsg.network.SessionEvent;
+import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
-import ymsg.support.MessageDecoder;
-import ymsg.support.MessageDecoderSettings;
-import ymsg.support.MessageElement;
-
 
 public class Form_List_Friend extends JFrame
 {
@@ -48,9 +39,7 @@ public class Form_List_Friend extends JFrame
 	
 	public Form_List_Friend()
 	{
-		super("Buddy List");
-		
-		//this.session.addSessionListener(new SessionHandler());
+		super("Buddy List");	
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -148,7 +137,47 @@ public class Form_List_Friend extends JFrame
 			boolean selected,boolean expanded,boolean leaf,int row,boolean focus)
 		{	if(value instanceof YahooUser)
 			{	YahooUser yu = (YahooUser)value;
-				setText(yu.getId()+" ("+Long.toHexString(yu.getStatus())+")");
+				String status = "";
+				switch((int)yu.getStatus())
+				{
+					case (int)StatusConstants.STATUS_AVAILABLE:
+						status = "(online)";
+						break;
+					case (int)StatusConstants.STATUS_BUSY:
+						status = "(busy)";
+						break;
+					case (int)StatusConstants.STATUS_IDLE:
+						status = "(idle)";
+						break;
+					case (int)StatusConstants.STATUS_NOTATDESK:
+						status = "(not at my desk)";
+						break;
+					case (int)StatusConstants.STATUS_INVISIBLE:
+						status = "(invisible)";
+						break;
+					case (int)StatusConstants.STATUS_ONPHONE:
+						status = "(I'm on mobie)";
+						break;
+					case (int)StatusConstants.STATUS_ONVACATION:
+						status = "(on my vacation)";
+						break;
+					case (int)StatusConstants.STATUS_OFFLINE:
+						status = "(offline)";
+						break;
+					case (int)StatusConstants.STATUS_BAD:
+						status = "(bad)";
+						break;
+					case (int)StatusConstants.STATUS_BADUSERNAME:
+						status = "(badusername)";
+						break;					
+					case (int)StatusConstants.STATUS_COMPLETE:
+						status = "(complete)";
+						break;
+					case (int)StatusConstants.STATUS_CUSTOM:
+						status = "(" + yu.getCustomStatusMessage() + ")";
+						break;
+				}
+				setText(yu.getId() + " " + status);
 			}
 			else if(value instanceof YahooGroup)
 			{	setText( ((YahooGroup)value).getName() );
@@ -164,29 +193,5 @@ public class Form_List_Friend extends JFrame
 	public void setSession(Session session)
 	{
 		this.session = session;
-	}
-	
-	/*private class SessionHandler extends SessionAdapter
-	{
-		public void messageReceived(SessionEvent ev)
-		{
-			 if(!showForm || !formMessage.isShowing())
-        	 {
-        		 formMessage = new Form_Message(session);
-        		 formMessage.show();
-        		 showForm = true;
-        		 formMessage.appendtoDisplay(ev.getFrom() + ":");
-        		 
-        		 MessageDecoderSettings sets = new MessageDecoderSettings();
-    			 sets.setEmoticonsDecoded(true);
-    			 sets.setRespectTextFade(true);
-    			 sets.setRespectTextAlt(true);
-    			 sets.setOverrideFont(null,10,18,null);
-        		 MessageDecoder decorder = new MessageDecoder(sets);
-        		 
-        		 MessageElement me = decorder.decode(ev.getMessage());
-        		 me.appendToDocument(formMessage.DisplayDoc);
-        	 }			
-		}
-	}*/
+	}	
 }

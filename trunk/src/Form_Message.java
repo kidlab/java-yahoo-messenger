@@ -1,4 +1,5 @@
 import java.awt.Container;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -21,6 +22,7 @@ import sun.font.Decoration;
 import ymsg.network.Session;
 import ymsg.network.SessionAdapter;
 import ymsg.network.SessionEvent;
+import ymsg.support.EmoticonLoader;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
@@ -118,6 +120,7 @@ public class Form_Message extends JFrame
 						if(txtMessage.getText().trim().length() > 0)
 						{
 							appendtoDisplay("me: " + txtMessage.getText().trim() + "\n");	
+							pushDown();
 							String temp = txtMessage.getText().trim();
 							txtMessage.setText("");					
 							Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
@@ -164,12 +167,14 @@ public class Form_Message extends JFrame
 
 		//
 		//Decoder setting
-		//
-		MessageDecoderSettings sets = new MessageDecoderSettings();
+		//		
+		MessageDecoderSettings sets = new MessageDecoderSettings();		
 		sets.setEmoticonsDecoded(true);
-		sets.setRespectTextFade(true);
-		sets.setRespectTextAlt(true);
-		sets.setOverrideFont(null,10,18,null);
+		//sets.setRespectTextFade(true);
+		//sets.setRespectTextAlt(true);
+		//sets.setOverrideFont(null,10,18,null);
+		
+		
 		
 		decoder = new MessageDecoder(sets);
 		
@@ -188,13 +193,11 @@ public class Form_Message extends JFrame
 		pack();
 		this.setSize(350,500);
 		this.setVisible(true);
-	}
+	}	
 	
-	public void  setToFriend(String nick)
-	{
-		this.txtTo.setText(nick);
-	}
-	
+	/*
+	 * send nick to textbox To
+	 */
 	public void setTo(String to)
 	{
 		this.txtTo.setText(to);
@@ -214,19 +217,32 @@ public class Form_Message extends JFrame
 		catch(BadLocationException ex)
 		{
 			
-		}
-		
-		
+		}		
+	}
+	
+	/**
+	 * move to the last line in display box
+	 */
+	public void pushDown()
+	{	try
+		{	
+			this.txtDisplayMessage.setCaretPosition(this.txtDisplayMessage.getText().length());			
+			this.txtDisplayMessage.scrollRectToVisible( new Rectangle(0,this.txtDisplayMessage.getSize().height,1,1));			
+		}catch(Exception e) {}
 	}
 	
 	private class SessionHandler extends SessionAdapter
 	{
+		/**
+		 * listen when the message is comming
+		 */
 		public void messageReceived(SessionEvent ev)
 		{
-			appendtoDisplay(ev.getFrom() + ":");
+			appendtoDisplay(ev.getFrom() + ":");			
 			MessageElement me = decoder.decode(ev.getMessage());
 			//decoder.appendToDocument(ev.getMessage(), DisplayDoc);
 			me.appendToDocument(DisplayDoc);
+			pushDown();
 		}
 	}
 }
