@@ -8,6 +8,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -29,13 +30,14 @@ public class Form_List_Friend extends JFrame
 {
 	private JTree friendTree;
 	private Session session;
-	private Form_Message formMessage; 
+	private Form_Message formMessage;
+	private Form_Add_Friend formAddFriend;
 	private boolean showForm = false;
 	private JMenu buddyMenu;
 	private JMenuItem logoutItem;
+	private JMenuItem addfriendItem;
 	private Form_Login formLogin;
-	private JMenuBar mnuBar;
-	
+	private JMenuBar mnuBar;	
 	
 	public Form_List_Friend()
 	{
@@ -92,10 +94,25 @@ public class Form_List_Friend extends JFrame
 		 });
 		 
 		 //
+		 //Add friend Item
+		 //
+		 this.addfriendItem = new JMenuItem("Add Friend");
+		 this.addfriendItem.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 formAddFriend = new Form_Add_Friend(session);
+				 formAddFriend.show();
+			 }
+		 });
+		 
+		 //
 		 //BuddyMenu
 		 //
 		 this.buddyMenu = new JMenu("Buddy");
+		 this.buddyMenu.add(this.addfriendItem);
 		 this.buddyMenu.add(this.logoutItem);
+		 
 		 
 		 //
 		 //menu bar
@@ -103,6 +120,10 @@ public class Form_List_Friend extends JFrame
 		 this.mnuBar = new JMenuBar();
 		 this.mnuBar.add(this.buddyMenu);
 		 this.setJMenuBar(this.mnuBar);
+		 
+		 //
+		 //
+		 //
 		
 		Container container = this.getContentPane();
 		container.add(new JScrollPane(this.friendTree),BorderLayout.CENTER);

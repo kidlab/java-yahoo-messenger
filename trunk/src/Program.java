@@ -21,6 +21,8 @@ public class Program {
 		formLogin.setSize(350, 550);
 		formLogin.setVisible(true);
 		formLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		//Form_Add_Friend f = new Form_Add_Friend(new Session());
+		
 		//Form_Message formMessage = new Form_Message(new Session());
 		/*try
 		{
