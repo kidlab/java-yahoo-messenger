@@ -13,6 +13,7 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JTextPane;
 
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
@@ -31,7 +32,7 @@ import ymsg.support.MessageElement;
 public class Form_Message extends JFrame
 {
 	private JTextArea txtMessage;
-	private JTextArea txtDisplayMessage;	
+	private JTextPane txtDisplayMessage;	
 	private JScrollPane spPanelDisplay;
 	private JScrollPane spPanelMessage;
 	private Container container;
@@ -61,7 +62,8 @@ public class Form_Message extends JFrame
 				{
 					if(txtMessage.getText().trim().length() > 0)
 					{
-						appendtoDisplay("me: " + txtMessage.getText().trim() + "\n");	
+						MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
+						me.appendToDocument(DisplayDoc);							
 						String temp = txtMessage.getText().trim();
 						txtMessage.setText("");					
 						Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
@@ -83,6 +85,7 @@ public class Form_Message extends JFrame
 		//
 		this.txtTo = new JTextField();
 		this.txtTo.setBounds(35, 333, 225, 25);
+		this.txtTo.setEditable(false);
 		this.txtTo.addKeyListener(new KeyAdapter()
 		{
 			public void keyTyped(KeyEvent e)
@@ -119,10 +122,10 @@ public class Form_Message extends JFrame
 					{
 						if(txtMessage.getText().trim().length() > 0)
 						{
-							appendtoDisplay("me: " + txtMessage.getText().trim() + "\n");	
-							pushDown();
+							MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
+							me.appendToDocument(DisplayDoc);							
 							String temp = txtMessage.getText().trim();
-							txtMessage.setText("");					
+							txtMessage.setText("");										
 							Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
 						}
 					}
@@ -152,9 +155,7 @@ public class Form_Message extends JFrame
 		//
 		//txtDisplayMessage
 		//
-		this.txtDisplayMessage = new JTextArea();
-		this.txtDisplayMessage.setLineWrap(true);
-		this.txtDisplayMessage.setWrapStyleWord(true);
+		this.txtDisplayMessage = new JTextPane();		
 		this.txtDisplayMessage.setEditable(false);
 		this.DisplayDoc = this.txtDisplayMessage.getDocument();
 		//
@@ -238,11 +239,14 @@ public class Form_Message extends JFrame
 		 */
 		public void messageReceived(SessionEvent ev)
 		{
-			appendtoDisplay(ev.getFrom() + ":");			
-			MessageElement me = decoder.decode(ev.getMessage());
-			//decoder.appendToDocument(ev.getMessage(), DisplayDoc);
-			me.appendToDocument(DisplayDoc);
-			pushDown();
+			String strFriend = ev.getFrom();
+			String strTo = txtTo.getText();
+			if(strFriend.equals(strTo)){
+				appendtoDisplay(strFriend + ": ");			
+				MessageElement me = decoder.decode(ev.getMessage());			
+				me.appendToDocument(DisplayDoc);
+				pushDown();
+			}
 		}
 	}
 }

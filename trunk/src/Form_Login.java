@@ -89,7 +89,7 @@ public class Form_Login extends JFrame
 		this.container.add(this.txtPassWords);
 		this.container.add(this.bntLogin);
 		this.container.add(this.bntExit);
-		
+		this.setResizable(false);
 		this.setLayout(null);
 	}
 	
