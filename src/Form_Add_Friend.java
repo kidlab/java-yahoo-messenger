@@ -84,6 +84,7 @@ public class Form_Add_Friend extends JFrame
 					try
 					{
 						Form_Add_Friend.this.session.addFriend(txtUserId.getText().trim(), cbGroup.getSelectedItem().toString());
+						setVisible(false);
 					}
 					catch(IOException ex)
 					{
@@ -120,7 +121,7 @@ public class Form_Add_Friend extends JFrame
 		this.setMaximumSize(new Dimension(250,200));
 		this.setMinimumSize(new Dimension(250,200));
 		this.setResizable(false);
-		pack();		
+		this.pack();		
 		this.setVisible(true);
 	}
 }

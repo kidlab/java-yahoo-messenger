@@ -2,6 +2,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -45,8 +46,6 @@ public class Form_List_Friend extends JFrame
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
-	//when the message from a friend receive, it will be change to false;
-	private Boolean flagShowFormFirst = true;
 	
 	private Hashtable <String, Form_Message> listFormMessages;
 	
@@ -62,8 +61,9 @@ public class Form_List_Friend extends JFrame
 		
 		MouseListener ml = new MouseAdapter() {
 		     public void mousePressed(MouseEvent e) {
-		    	 if(e.getButton() != MouseEvent.BUTTON1)
-		    		 return;
+		    	//if the pressed button is not right button.
+				if(e.isMetaDown())
+					return;
 		    	 
 		         int selRow = friendTree.getRowForLocation(e.getX(), e.getY());
 		         TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		         
@@ -74,14 +74,18 @@ public class Form_List_Friend extends JFrame
 		            	 if(listFormMessages.containsKey(nick))
 		            	 {
 		            		 Form_Message frmTemp = listFormMessages.get(nick);
-		            		 if(frmTemp != null && !frmTemp.isShowing()){
+		            		 if(frmTemp != null && !frmTemp.isShowing())
+		            		 {
 		            			 frmTemp.setVisible(true);
 		            			 return;
-		            		}
+		            		 }
+		            		 else if(frmTemp != null && frmTemp.isShowing())
+		            		 {
+		            			 return;
+		            		 }		            		 	            		 
 		            	 }
 		            	 Form_Message formMessage = new Form_Message(session);
-		            	 formMessage.setVisible(true);	    	
-		            	 
+		            	 formMessage.setVisible(true);	            	 
 		            	 
 		            	 if(nick.length() == 0);
 		            	 else
@@ -99,21 +103,32 @@ public class Form_List_Friend extends JFrame
 		     
 		     public void mouseReleased(MouseEvent e)
 		     {
-		    	 //if(e.getButton() != MouseEvent.BUTTON2)
-		    		 //return;
-		    	 
-		    	 TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		    	 
-		    	 //Set the current node at mouse location to be selected.
-		    	 friendTree.setSelectionPath(selPath);
-		    	 
-			     if (e.isPopupTrigger())	
-			     {	
-			    	 popup.setLocation(e.getX(), e.getY());	
-			    	 popup.setVisible(true);	
-			     }
-
+		    	//if the pressed button is right button.
+				if(e.isMetaDown())
+				{		   
+					int selRow = friendTree.getRowForLocation(e.getX(), e.getY());
+					if(selRow <= 0)
+					{
+						popup.setVisible(false);
+						return;
+					}
+					
+					TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		    	 
+			    	//Set the current node at mouse location to be selected.
+			    	friendTree.setSelectionPath(selPath);
+				    if (e.isPopupTrigger())	
+				    {	
+				    	popup.setLocation(e.getLocationOnScreen());
+				    	popup.setVisible(true);	
+				    }
+				}
+				else
+				{
+					popup.setVisible(false);
+				}
 		     }
 		 };
+		 
 		 this.friendTree.addMouseListener(ml);	 
 		 
 		 //
@@ -262,7 +277,7 @@ public class Form_List_Friend extends JFrame
 	private class SessionHandler extends SessionAdapter
 	{
 		/**
-		 * listen when the message is comming
+		 * listen when the message is coming
 		 */
 		public void messageReceived(SessionEvent ev)
 		{			
@@ -273,18 +288,17 @@ public class Form_List_Friend extends JFrame
         		 if(frmTemp != null && !frmTemp.isShowing()){
         			 frmTemp.setVisible(true);
         			 return;
-        		}
+        		 }
+        		 else if(frmTemp != null && frmTemp.isShowing()){
+        			 return;
+        		 }
 			}
 			
-			if(flagShowFormFirst)
-			{
-				Form_Message formMessage = new Form_Message(session);
-				formMessage.setTo(strFriend);
-				formMessage.setEditableForMessageField(true);
-				listFormMessages.put(strFriend, formMessage);	   		
-	   			formMessage.setVisible(true);
-	   			flagShowFormFirst = false;
-			}
+			Form_Message formMessage = new Form_Message(session);
+			formMessage.setTo(strFriend);
+			formMessage.setEditableForMessageField(true);
+			listFormMessages.put(strFriend, formMessage);	   		
+	   		formMessage.setVisible(true);	   			
 		}
 	}
 	
@@ -329,6 +343,7 @@ public class Form_List_Friend extends JFrame
 		public void actionPerformed(ActionEvent e)
 		{	
 			deleteFriend();
+			popup.setVisible(false);
 		}
 	}
 }
