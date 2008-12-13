@@ -173,12 +173,9 @@ public class Form_Message extends JFrame
 		sets.setEmoticonsDecoded(true);
 		//sets.setRespectTextFade(true);
 		//sets.setRespectTextAlt(true);
-		//sets.setOverrideFont(null,10,18,null);
+		//sets.setOverrideFont(null,10,18,null);		
 		
-		
-		
-		decoder = new MessageDecoder(sets);
-		
+		decoder = new MessageDecoder(sets);	
 		
 		//
 		//container
@@ -191,9 +188,10 @@ public class Form_Message extends JFrame
 		this.container.add(this.btnSend);
 		
 		this.setLayout(null);
-		pack();
+		this.pack();
 		this.setSize(350,500);
 		this.setVisible(true);
+		this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	}	
 	
 	/*
