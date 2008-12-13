@@ -2,6 +2,7 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -12,8 +13,8 @@ import javax.swing.JTextField;
 
 import com.sun.corba.se.impl.protocol.giopmsgheaders.MessageBase;
 
-import ymsg.network.Session;
-import ymsg.network.YahooGroup;
+import ymsg.network.*;
+import ymsg.support.*;
 
 
 public class Form_Add_Friend extends JFrame
@@ -76,7 +77,19 @@ public class Form_Add_Friend extends JFrame
 		{
 			public void actionPerformed(ActionEvent e)
 			{
-				JOptionPane.showMessageDialog(null, cbGroup.getSelectedItem().toString());
+				if(txtUserId.getText().trim().length() == 0)					
+					JOptionPane.showMessageDialog(null, "Enter your friend's yahoo ID");
+				else
+				{
+					try
+					{
+						Form_Add_Friend.this.session.addFriend(txtUserId.getText().trim(), cbGroup.getSelectedItem().toString());
+					}
+					catch(IOException ex)
+					{
+						
+					}
+				}
 			}
 		});
 		
@@ -106,6 +119,7 @@ public class Form_Add_Friend extends JFrame
 		this.setLayout(null);
 		this.setMaximumSize(new Dimension(250,200));
 		this.setMinimumSize(new Dimension(250,200));
+		this.setResizable(false);
 		pack();		
 		this.setVisible(true);
 	}

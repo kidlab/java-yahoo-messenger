@@ -232,6 +232,14 @@ public class Form_Message extends JFrame
 		}catch(Exception e) {}
 	}
 	
+	public void addInstantMessage(String strSender, String message)
+	{		
+		appendtoDisplay(strSender + ": ");			
+		MessageElement me = decoder.decode(message);			
+		me.appendToDocument(DisplayDoc);
+		pushDown();
+	}
+	
 	private class SessionHandler extends SessionAdapter
 	{
 		/**
@@ -242,10 +250,7 @@ public class Form_Message extends JFrame
 			String strFriend = ev.getFrom();
 			String strTo = txtTo.getText();
 			if(strFriend.equals(strTo)){
-				appendtoDisplay(strFriend + ": ");			
-				MessageElement me = decoder.decode(ev.getMessage());			
-				me.appendToDocument(DisplayDoc);
-				pushDown();
+				addInstantMessage(strFriend, ev.getMessage());
 			}
 		}
 	}

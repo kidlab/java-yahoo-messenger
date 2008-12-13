@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.IOException;
 import java.util.Hashtable;
 
 import javax.swing.JButton;
@@ -15,6 +16,8 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
@@ -23,9 +26,12 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import ymsg.network.Session;
+import ymsg.network.SessionAdapter;
+import ymsg.network.SessionEvent;
 import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
+import ymsg.support.MessageElement;
 
 public class Form_List_Friend extends JFrame
 {
@@ -38,6 +44,7 @@ public class Form_List_Friend extends JFrame
 	private JMenuItem addfriendItem;
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
+	private ListPopupMenu popup;
 	
 	private Hashtable <String, Form_Message> listFormMessages;
 	
@@ -47,14 +54,17 @@ public class Form_List_Friend extends JFrame
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
-		this.friendTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-		
+		this.friendTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
 		this.listFormMessages = new Hashtable<String, Form_Message>();
+		this.popup = new ListPopupMenu();
 		
 		MouseListener ml = new MouseAdapter() {
 		     public void mousePressed(MouseEvent e) {
+		    	 if(e.getButton() != MouseEvent.BUTTON1)
+		    		 return;
+		    	 
 		         int selRow = friendTree.getRowForLocation(e.getX(), e.getY());
-		         TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());
+		         TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		         
 		         if(selRow != -1) {
 		             if(e.getClickCount() == 1) {		            	 
 		            	
@@ -62,9 +72,7 @@ public class Form_List_Friend extends JFrame
 		            	 if(listFormMessages.containsKey(nick))
 		            	 {
 		            		 Form_Message frmTemp = listFormMessages.get(nick);
-		            		 if(frmTemp != null && frmTemp.isShowing())
-		            			 return;
-		            		 else{
+		            		 if(frmTemp != null && !frmTemp.isShowing()){
 		            			 frmTemp.setVisible(true);
 		            			 return;
 		            		}
@@ -85,6 +93,23 @@ public class Form_List_Friend extends JFrame
 		            	 System.out.print("double hello");
 		             }
 		         }
+		     }
+		     
+		     public void mouseReleased(MouseEvent e)
+		     {
+		    	 //if(e.getButton() != MouseEvent.BUTTON2)
+		    		 //return;
+		    	 
+		    	 TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		    	 
+		    	 //Set the current node at mouse location to be selected.
+		    	 friendTree.setSelectionPath(selPath);
+		    	 
+			     if (e.isPopupTrigger())	
+			     {	
+			    	 popup.setLocation(e.getX(), e.getY());	
+			    	 popup.setVisible(true);	
+			     }
+
 		     }
 		 };
 		 this.friendTree.addMouseListener(ml);	 
@@ -144,6 +169,8 @@ public class Form_List_Friend extends JFrame
 		pack();
 		this.setSize(350,550);
 		this.setVisible(true);
+		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public String getNickToAddressField(TreePath selPath)
@@ -166,7 +193,7 @@ public class Form_List_Friend extends JFrame
 		this.friendTree.setModel(treeModel); 
 	}
 	
-	class CellRenderer extends JLabel implements TreeCellRenderer
+	private class CellRenderer extends JLabel implements TreeCellRenderer
 	{	public Component getTreeCellRendererComponent(JTree tree,Object value,
 			boolean selected,boolean expanded,boolean leaf,int row,boolean focus)
 		{	if(value instanceof YahooUser)
@@ -227,5 +254,75 @@ public class Form_List_Friend extends JFrame
 	public void setSession(Session session)
 	{
 		this.session = session;
-	}	
+		this.session.addSessionListener(new SessionHandler());
+	}
+	
+	private class SessionHandler extends SessionAdapter
+	{
+		/**
+		 * listen when the message is comming
+		 */
+		public void messageReceived(SessionEvent ev)
+		{			
+			String strFriend = ev.getFrom();
+			
+			if(listFormMessages.containsKey(strFriend)){
+				 Form_Message frmTemp = listFormMessages.get(strFriend);
+        		 if(frmTemp != null && !frmTemp.isShowing()){
+        			 frmTemp.setVisible(true);
+        			 return;
+        		}
+			}
+			
+			Form_Message formMessage = new Form_Message(session);
+			formMessage.setTo(strFriend);
+	   		formMessage.setEditableForMessageField(true);
+	   		listFormMessages.put(strFriend, formMessage);	   		
+	   		formMessage.setVisible(true);
+		}
+	}
+	
+	private class ListPopupMenu  extends JPopupMenu 
+	{
+		JMenuItem menuitem;
+		
+		public ListPopupMenu()
+		{
+			 this.menuitem = new JMenuItem("Delete");
+			 this.menuitem.addActionListener(new DeleteActionListener());
+			 this.add(menuitem);
+		}
+	}
+	
+	private void deleteFriend()
+	{
+		try
+		{
+			TreePath selPath = friendTree.getSelectionPath();
+			
+			int count = selPath.getPathCount();
+			if(count <= 0)
+				return;
+			
+			String strGroup = selPath.getParentPath().getLastPathComponent().toString();
+			String strFriend = getNickToAddressField(selPath);
+			this.session.removeFriend(strFriend, strGroup);
+		}
+		catch (IllegalStateException ex) 
+		{
+			JOptionPane.showMessageDialog(null, ex.getMessage());
+		}
+		catch (IOException ex) 
+		{
+			JOptionPane.showMessageDialog(null, ex.getMessage());
+		}
+	}
+	
+	private class DeleteActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{	
+			deleteFriend();
+		}
+	}
 }
