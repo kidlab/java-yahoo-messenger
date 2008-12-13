@@ -45,6 +45,8 @@ public class Form_List_Friend extends JFrame
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
+	//when the message from a friend receive, it will be change to false;
+	private Boolean flagShowFormFirst = true;
 	
 	private Hashtable <String, Form_Message> listFormMessages;
 	
@@ -274,11 +276,15 @@ public class Form_List_Friend extends JFrame
         		}
 			}
 			
-			Form_Message formMessage = new Form_Message(session);
-			formMessage.setTo(strFriend);
-	   		formMessage.setEditableForMessageField(true);
-	   		listFormMessages.put(strFriend, formMessage);	   		
-	   		formMessage.setVisible(true);
+			if(flagShowFormFirst)
+			{
+				Form_Message formMessage = new Form_Message(session);
+				formMessage.setTo(strFriend);
+				formMessage.setEditableForMessageField(true);
+				listFormMessages.put(strFriend, formMessage);	   		
+	   			formMessage.setVisible(true);
+	   			flagShowFormFirst = false;
+			}
 		}
 	}
 	
