@@ -1,4 +1,5 @@
 import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -6,7 +7,10 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+
+import com.sun.corba.se.impl.protocol.giopmsgheaders.MessageBase;
 
 import ymsg.network.Session;
 import ymsg.network.YahooGroup;
@@ -68,6 +72,13 @@ public class Form_Add_Friend extends JFrame
 		//
 		this.btnAccept = new JButton("Add");
 		this.btnAccept.setBounds(10, 90, 85, 23);
+		this.btnAccept.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				JOptionPane.showMessageDialog(null, cbGroup.getSelectedItem().toString());
+			}
+		});
 		
 		//
 		//
@@ -93,8 +104,9 @@ public class Form_Add_Friend extends JFrame
 		this.container.add(this.btnCancel);
 		
 		this.setLayout(null);
-		pack();
-		this.setSize(250,200);
+		this.setMaximumSize(new Dimension(250,200));
+		this.setMinimumSize(new Dimension(250,200));
+		pack();		
 		this.setVisible(true);
 	}
 }

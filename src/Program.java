@@ -1,3 +1,5 @@
+import java.awt.Dimension;
+
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -18,9 +20,11 @@ public class Program {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		Form_Login formLogin = new Form_Login();
-		formLogin.setSize(350, 550);
+		formLogin.setMaximumSize(new Dimension(350,450));
+		formLogin.setMinimumSize(new Dimension(350,450));
 		formLogin.setVisible(true);
 		formLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 		//Form_Add_Friend f = new Form_Add_Friend(new Session());
 		
 		//Form_Message formMessage = new Form_Message(new Session());
