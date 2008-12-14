@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -29,6 +30,7 @@ import javax.swing.tree.TreeSelectionModel;
 import ymsg.network.Session;
 import ymsg.network.SessionAdapter;
 import ymsg.network.SessionEvent;
+import ymsg.network.SessionFriendEvent;
 import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
@@ -41,13 +43,17 @@ public class Form_List_Friend extends JFrame
 	private Form_Add_Friend formAddFriend;
 	private boolean showForm = false;
 	private JMenu buddyMenu;
+	private JMenu statusMenu;
 	private JMenuItem logoutItem;
 	private JMenuItem addfriendItem;
+	private JMenuItem online;
+	private JMenuItem invisible;
+	private JMenuItem busy;
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
 	
-	private Hashtable <String, Form_Message> listFormMessages;
+	public Hashtable <String, Form_Message> listFormMessages;
 	
 	public Form_List_Friend()
 	{
@@ -149,6 +155,63 @@ public class Form_List_Friend extends JFrame
 		 });
 		 
 		 //
+		 //online status item
+		 //
+		 this.online = new JMenuItem("Available",new ImageIcon(getClass().getResource("image/online.gif")));
+		 this.online.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 try
+				 {
+					 session.setStatus(StatusConstants.STATUS_AVAILABLE);
+				 }
+				 catch(IOException ex)
+				 {
+					 
+				 }
+			 }
+		 });
+		 
+		 //
+		 //busy status item
+		 //
+		 this.busy = new JMenuItem("Busy",new ImageIcon(getClass().getResource("image/busy.gif")));
+		 this.busy.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 try
+				 {
+					 session.setStatus(StatusConstants.STATUS_BUSY);
+				 }
+				 catch(IOException ex)
+				 {
+					 
+				 }
+			 }
+		 });
+		 
+		 //
+		 //invisible status item
+		 //
+		 this.invisible = new JMenuItem("Invisible",new ImageIcon(getClass().getResource("image/offline.gif")));
+		 this.invisible.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 try
+				 {
+					 session.setStatus(StatusConstants.STATUS_INVISIBLE);
+				 }
+				 catch(IOException ex)
+				 {
+					 
+				 }
+			 }
+		 });
+		 
+		 //
 		 //Add friend Item
 		 //
 		 this.addfriendItem = new JMenuItem("Add Friend");
@@ -168,12 +231,21 @@ public class Form_List_Friend extends JFrame
 		 this.buddyMenu.add(this.addfriendItem);
 		 this.buddyMenu.add(this.logoutItem);
 		 
+		 //
+		 //Status Menu
+		 //
+		 this.statusMenu = new JMenu("Status");
+		 this.statusMenu.add(this.online);
+		 this.statusMenu.add(this.busy);
+		 this.statusMenu.add(this.invisible);
+		 
 		 
 		 //
 		 //menu bar
 		 //
 		 this.mnuBar = new JMenuBar();
 		 this.mnuBar.add(this.buddyMenu);
+		 this.mnuBar.add(this.statusMenu);
 		 this.setJMenuBar(this.mnuBar);
 		 
 		 //
@@ -299,6 +371,18 @@ public class Form_List_Friend extends JFrame
 			formMessage.setEditableForMessageField(true);
 			listFormMessages.put(strFriend, formMessage);	   		
 	   		formMessage.setVisible(true);	   			
+		}
+		
+		public void offlineMessageReceived(SessionEvent ev) 
+		{
+			String strFriend = ev.getFrom();
+			Form_Message formMessage = new Form_Message(session);
+			formMessage.setTo(strFriend);
+			formMessage.setEditableForMessageField(true);
+			listFormMessages.put(strFriend, formMessage);
+			String message = ev.getMessage() + "at" + ev.getTimestamp().toGMTString();
+			formMessage.addInstantMessage(strFriend, message);
+	   		formMessage.setVisible(true);
 		}
 	}
 	

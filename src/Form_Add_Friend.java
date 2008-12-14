@@ -84,7 +84,7 @@ public class Form_Add_Friend extends JFrame
 					try
 					{
 						Form_Add_Friend.this.session.addFriend(txtUserId.getText().trim(), cbGroup.getSelectedItem().toString());
-						setVisible(false);
+						dispose();
 					}
 					catch(IOException ex)
 					{

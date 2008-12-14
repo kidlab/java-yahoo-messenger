@@ -27,7 +27,7 @@ public class Form_Login extends JFrame
 	private JButton bntExit;
 	private Container container;
 	private Session session;
-	
+	private Form_List_Friend formListFriend;
 	/**
 	 * Initilize Component with default setting
 	 */
@@ -150,7 +150,7 @@ public class Form_Login extends JFrame
 						if(session.getSessionStatus() == StatusConstants.MESSAGING)
 						{											
 							SwingModelFactory factory = new SwingModelFactory(session);
-							Form_List_Friend formListFriend = new Form_List_Friend();
+							formListFriend = new Form_List_Friend();
 							formListFriend.setModel(factory.createTreeModel(true));	
 							formListFriend.setSession(session);
 							Form_Login.this.dispose();
@@ -174,6 +174,17 @@ public class Form_Login extends JFrame
 	
 	private class SessionHandler extends SessionAdapter
 	{
-		
+		public void offlineMessageReceived(SessionEvent ev) 
+		{
+			String strFriend = ev.getFrom();
+			Form_Message formMessage = new Form_Message(session);
+			formMessage.setTo(strFriend);
+			formMessage.setEditableForMessageField(true);
+			//formListFriend.listFormMessages.put(strFriend, formMessage);
+			formMessage.appendtoDisplay("Offline message at " + ev.getTimestamp().toLocaleString() + "\n");
+			String message = ev.getMessage();
+			formMessage.addInstantMessage(strFriend, message);
+	   		formMessage.setVisible(true);
+		}
 	}
 }
