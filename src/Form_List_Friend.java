@@ -48,6 +48,7 @@ public class Form_List_Friend extends JFrame
 	private JMenuItem addfriendItem;
 	private JMenuItem online;
 	private JMenuItem invisible;
+	private JMenuItem customStatus;
 	private JMenuItem busy;
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
@@ -212,6 +213,19 @@ public class Form_List_Friend extends JFrame
 		 });
 		 
 		 //
+		 //custom status item
+		 //
+		 this.customStatus = new JMenuItem("Custom status...");
+		 this.customStatus.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 Form_Custom_Status customForm = new Form_Custom_Status(session);
+				 customForm.setVisible(true);
+			 }
+		 });
+		 
+		 //
 		 //Add friend Item
 		 //
 		 this.addfriendItem = new JMenuItem("Add Friend");
@@ -238,6 +252,7 @@ public class Form_List_Friend extends JFrame
 		 this.statusMenu.add(this.online);
 		 this.statusMenu.add(this.busy);
 		 this.statusMenu.add(this.invisible);
+		 this.statusMenu.add(this.customStatus);
 		 
 		 
 		 //

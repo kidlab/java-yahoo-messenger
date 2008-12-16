@@ -141,7 +141,10 @@ public class Form_Message extends JFrame
 			
 			public void keyReleased(KeyEvent e)
 			{
-				
+				if(txtMessage.getText().length() > 0)
+					btnSend.setEnabled(true);
+				else
+					btnSend.setEnabled(false);
 			}
 		});
 		
