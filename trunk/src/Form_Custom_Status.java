@@ -108,6 +108,7 @@ public class Form_Custom_Status extends JFrame
 					{}
 				}
 				
+				
 				dispose();
 			}
 		});
