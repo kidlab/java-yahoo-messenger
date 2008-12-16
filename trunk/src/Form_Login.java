@@ -3,6 +3,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,6 +29,7 @@ public class Form_Login extends JFrame
 	private Container container;
 	private Session session;
 	private Form_List_Friend formListFriend;
+	private JCheckBox chkInvisible;
 	/**
 	 * Initilize Component with default setting
 	 */
@@ -62,7 +64,7 @@ public class Form_Login extends JFrame
 		// btnLogin
 		//
 		this.bntLogin = new JButton("Login");
-		this.bntLogin.setBounds(135, 235, 75, 25);
+		this.bntLogin.setBounds(135, 265, 75, 25);
 		ButtonLoginAction bntLoginAction = new ButtonLoginAction();
 		this.bntLogin.addActionListener(bntLoginAction);
 		
@@ -70,7 +72,7 @@ public class Form_Login extends JFrame
 		// btnExit
 		//
 		this.bntExit = new JButton("Exit");
-		this.bntExit.setBounds(220, 235, 75, 25);
+		this.bntExit.setBounds(220, 265, 75, 25);
 		this.bntExit.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -80,6 +82,12 @@ public class Form_Login extends JFrame
 		}
 		);
 		
+		//
+		//chkInvisible
+		//
+		this.chkInvisible = new JCheckBox("Invisible to every one");
+		this.chkInvisible.setBounds(132, 235, 250, 25);
+		
 		// container
 		//
 		this.container = this.getContentPane();
@@ -87,6 +95,7 @@ public class Form_Login extends JFrame
 		this.container.add(this.lbPassWords);
 		this.container.add(this.txtUserName);
 		this.container.add(this.txtPassWords);
+		this.container.add(this.chkInvisible);
 		this.container.add(this.bntLogin);
 		this.container.add(this.bntExit);
 		this.setResizable(false);
@@ -112,7 +121,10 @@ public class Form_Login extends JFrame
 		{
 			passWord += tempPass[i];
 		}
-		this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
+		if(this.chkInvisible.isSelected())
+			this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
+		else
+			this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
 		try
 		{
 			this.session.login(userName, passWord);

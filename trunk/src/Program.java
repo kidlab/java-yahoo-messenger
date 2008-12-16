@@ -23,7 +23,8 @@ public class Program {
 		formLogin.setMaximumSize(new Dimension(350,450));
 		formLogin.setMinimumSize(new Dimension(350,450));
 		formLogin.setVisible(true);
-		formLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);		
+		formLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		
 	}
 
 }
