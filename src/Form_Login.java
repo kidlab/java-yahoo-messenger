@@ -162,9 +162,8 @@ public class Form_Login extends JFrame
 						if(session.getSessionStatus() == StatusConstants.MESSAGING)
 						{											
 							SwingModelFactory factory = new SwingModelFactory(session);
-							formListFriend = new Form_List_Friend();
-							formListFriend.setModel(factory.createTreeModel(true));	
-							formListFriend.setSession(session);
+							formListFriend = new Form_List_Friend(session);
+							formListFriend.setModel(factory.createTreeModel(true));								
 							Form_Login.this.dispose();
 						}
 						else

@@ -11,6 +11,7 @@ import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Hashtable;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -19,8 +20,10 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
+import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
@@ -53,12 +56,16 @@ public class Form_List_Friend extends JFrame
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
+	private JPanel topPanel;
+	private JLabel lbMail;
+	private JLabel lbMyStatus;
 	
 	public Hashtable <String, Form_Message> listFormMessages;
 	
-	public Form_List_Friend()
+	public Form_List_Friend(Session session)
 	{
 		super("Buddy List");
+		this.session = session;
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -91,7 +98,7 @@ public class Form_List_Friend extends JFrame
 		            			 return;
 		            		 }		            		 	            		 
 		            	 }
-		            	 Form_Message formMessage = new Form_Message(session);
+		            	 Form_Message formMessage = new Form_Message(Form_List_Friend.this.session);
 		            	 formMessage.setVisible(true);	            	 
 		            	 
 		            	 if(nick.length() == 0);
@@ -139,6 +146,26 @@ public class Form_List_Friend extends JFrame
 		 this.friendTree.addMouseListener(ml);	 
 		 
 		 //
+		 //lb Mail
+		 //		 
+		 this.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/nomail.png")));
+		 
+		 //
+		 //lbMyStatus
+		 //
+		 String status = getMyStatus();
+		 this.lbMyStatus = new JLabel("My Status: " + status);
+		 
+		 
+		 //
+		 //top Panel
+		 //
+		 this.topPanel = new JPanel(new BorderLayout());
+		 this.topPanel.add(this.lbMyStatus,BorderLayout.LINE_START);
+		 this.topPanel.add(this.lbMail,BorderLayout.LINE_END);
+		
+		 
+		 //
 		 //Logout item
 		 //
 		 this.logoutItem = new JMenuItem("Exit");
@@ -165,7 +192,8 @@ public class Form_List_Friend extends JFrame
 			 {
 				 try
 				 {
-					 session.setStatus(StatusConstants.STATUS_AVAILABLE);
+					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
+					 lbMyStatus.setText("My status: " + getMyStatus());
 				 }
 				 catch(IOException ex)
 				 {
@@ -184,7 +212,8 @@ public class Form_List_Friend extends JFrame
 			 {
 				 try
 				 {
-					 session.setStatus(StatusConstants.STATUS_BUSY);
+					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_BUSY);
+					 lbMyStatus.setText("My status: " + getMyStatus());
 				 }
 				 catch(IOException ex)
 				 {
@@ -203,7 +232,8 @@ public class Form_List_Friend extends JFrame
 			 {
 				 try
 				 {
-					 session.setStatus(StatusConstants.STATUS_INVISIBLE);
+					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
+					 lbMyStatus.setText("My status: " + getMyStatus());
 				 }
 				 catch(IOException ex)
 				 {
@@ -220,7 +250,7 @@ public class Form_List_Friend extends JFrame
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {
-				 Form_Custom_Status customForm = new Form_Custom_Status(session);
+				 Form_Custom_Status customForm = new Form_Custom_Status(Form_List_Friend.this.session);
 				 customForm.setVisible(true);
 			 }
 		 });
@@ -233,8 +263,8 @@ public class Form_List_Friend extends JFrame
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {				
-				 formAddFriend = new Form_Add_Friend(session);
-				 formAddFriend.show();
+				 formAddFriend = new Form_Add_Friend(Form_List_Friend.this.session);
+				 formAddFriend.setVisible(true);
 			 }
 		 });
 		 
@@ -269,6 +299,7 @@ public class Form_List_Friend extends JFrame
 		
 		Container container = this.getContentPane();
 		container.add(new JScrollPane(this.friendTree),BorderLayout.CENTER);
+		container.add(topPanel,BorderLayout.PAGE_START);
 		
 		pack();
 		this.setSize(350,550);
@@ -444,5 +475,34 @@ public class Form_List_Friend extends JFrame
 			deleteFriend();
 			popup.setVisible(false);
 		}
+	}
+	
+	private String getMyStatus()
+	{
+		String status = "";
+		switch((int)session.getStatus())
+		{
+			case (int)StatusConstants.STATUS_AVAILABLE:
+				status = "Available";
+				break;
+			case (int)StatusConstants.STATUS_BUSY:
+				status = "Busy";
+				break;
+			case (int)StatusConstants.STATUS_IDLE:
+				status = "Idle";
+				break;
+			case (int)StatusConstants.STATUS_NOTATDESK:
+				status = "Not at my desk";
+				break;
+			case (int)StatusConstants.STATUS_INVISIBLE:
+				status = "Invisible";
+				break;
+			
+			case (int)StatusConstants.STATUS_CUSTOM:
+				status = session.getCustomStatusMessage();
+				break;
+		}
+		
+		return status;
 	}
 }
