@@ -23,7 +23,7 @@ public class Form_Add_Friend extends JFrame
 	private JLabel lbGroup;	
 	private JButton btnAccept;
 	private JButton btnCancel;	
-	private JTextField txtUserId;
+	public JTextField txtUserId;
 	private JComboBox cbGroup;	
 	private Session session;
 	private Container container;
