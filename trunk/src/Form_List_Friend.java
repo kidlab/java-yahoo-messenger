@@ -34,6 +34,7 @@ import ymsg.network.Session;
 import ymsg.network.SessionAdapter;
 import ymsg.network.SessionEvent;
 import ymsg.network.SessionFriendEvent;
+import ymsg.network.SessionNewMailEvent;
 import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
@@ -57,7 +58,7 @@ public class Form_List_Friend extends JFrame
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
 	private JPanel topPanel;
-	private JLabel lbMail;
+	public JLabel lbMail;
 	private JLabel lbMyStatus;
 	
 	public Hashtable <String, Form_Message> listFormMessages;
@@ -419,7 +420,7 @@ public class Form_List_Friend extends JFrame
 			formMessage.setEditableForMessageField(true);
 			listFormMessages.put(strFriend, formMessage);	   		
 	   		formMessage.setVisible(true);	   			
-		}	
+		}		
 	}
 	
 	private class ListPopupMenu  extends JPopupMenu 

@@ -1,7 +1,9 @@
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFrame;
@@ -196,6 +198,36 @@ public class Form_Login extends JFrame
 			String message = ev.getMessage();
 			formMessage.addInstantMessage(strFriend, message);
 	   		formMessage.setVisible(true);
+		}
+		
+		public void newMailReceived(SessionNewMailEvent ev)
+		{
+			/*int numberOfMail = ev.getMailCount();
+			if(numberOfMail > 0)
+				formListFriend.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/newmail.png")));
+			else
+				formListFriend.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/nomail.png")));
+			*/	
+		}
+		
+		public void contactRequestReceived(SessionEvent ev)
+		{
+			String friendId = ev.getFrom();
+			int result = JOptionPane.showConfirmDialog(null, friendId + " want to make friend with you");
+			if(result == JOptionPane.OK_OPTION)
+			{
+				Form_Add_Friend formAddFriend = new Form_Add_Friend(session);
+				formAddFriend.txtUserId.setText(friendId);
+			}
+			else if(result == JOptionPane.CANCEL_OPTION)
+			{
+				try
+				{
+					session.rejectContact(ev, "");
+				}
+				catch(IOException ex)
+				{}
+			}
 		}
 	}
 }
