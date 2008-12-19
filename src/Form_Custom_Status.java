@@ -27,11 +27,14 @@ public class Form_Custom_Status extends JFrame
 	private JLabel lbStatus;
 	private Container panel;
 	private JScrollPane spStatus;
+	private Form_List_Friend parent;
 	
-	public Form_Custom_Status(Session session) {
+	public Form_Custom_Status(Session session, Form_List_Friend frmParent) {
 		// TODO Auto-generated constructor stub
 		super("Your custom status");
 		this.session = session;
+		this.parent = frmParent;
+		
 		//
 		//lbStatus
 		//
@@ -108,7 +111,7 @@ public class Form_Custom_Status extends JFrame
 					{}
 				}
 				
-				
+				parent.setMyStatus();
 				dispose();
 			}
 		});

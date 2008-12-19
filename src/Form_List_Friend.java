@@ -66,6 +66,7 @@ public class Form_List_Friend extends JFrame
 	{
 		super("Buddy List");
 		this.session = session;
+		this.session.addSessionListener(new SessionHandler());
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -99,6 +100,7 @@ public class Form_List_Friend extends JFrame
 		            		 }		            		 	            		 
 		            	 }
 		            	 Form_Message formMessage = new Form_Message(Form_List_Friend.this.session);
+		            	 formMessage.setTitle(nick);
 		            	 formMessage.setVisible(true);	            	 
 		            	 
 		            	 if(nick.length() == 0);
@@ -193,7 +195,7 @@ public class Form_List_Friend extends JFrame
 				 try
 				 {
 					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
-					 lbMyStatus.setText("My status: " + getMyStatus());
+					 setMyStatus();
 				 }
 				 catch(IOException ex)
 				 {
@@ -213,7 +215,7 @@ public class Form_List_Friend extends JFrame
 				 try
 				 {
 					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_BUSY);
-					 lbMyStatus.setText("My status: " + getMyStatus());
+					 setMyStatus();
 				 }
 				 catch(IOException ex)
 				 {
@@ -233,7 +235,7 @@ public class Form_List_Friend extends JFrame
 				 try
 				 {
 					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
-					 lbMyStatus.setText("My status: " + getMyStatus());
+					 setMyStatus();
 				 }
 				 catch(IOException ex)
 				 {
@@ -250,7 +252,7 @@ public class Form_List_Friend extends JFrame
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {
-				 Form_Custom_Status customForm = new Form_Custom_Status(Form_List_Friend.this.session);
+				 Form_Custom_Status customForm = new Form_Custom_Status(Form_List_Friend.this.session,Form_List_Friend.this);
 				 customForm.setVisible(true);
 			 }
 		 });
@@ -417,19 +419,7 @@ public class Form_List_Friend extends JFrame
 			formMessage.setEditableForMessageField(true);
 			listFormMessages.put(strFriend, formMessage);	   		
 	   		formMessage.setVisible(true);	   			
-		}
-		
-		public void offlineMessageReceived(SessionEvent ev) 
-		{
-			String strFriend = ev.getFrom();
-			Form_Message formMessage = new Form_Message(session);
-			formMessage.setTo(strFriend);
-			formMessage.setEditableForMessageField(true);
-			listFormMessages.put(strFriend, formMessage);
-			String message = ev.getMessage() + "at" + ev.getTimestamp().toGMTString();
-			formMessage.addInstantMessage(strFriend, message);
-	   		formMessage.setVisible(true);
-		}
+		}	
 	}
 	
 	private class ListPopupMenu  extends JPopupMenu 
@@ -504,5 +494,10 @@ public class Form_List_Friend extends JFrame
 		}
 		
 		return status;
+	}
+	
+	public void setMyStatus()
+	{
+		this.lbMyStatus.setText("My status: " + getMyStatus());
 	}
 }

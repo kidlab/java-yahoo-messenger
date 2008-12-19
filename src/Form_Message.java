@@ -45,7 +45,7 @@ public class Form_Message extends JFrame
 	
 	public Form_Message(Session session)
 	{
-		super("Chat Window");
+		
 		this.session = session;		
 		this.session.addSessionListener(new SessionHandler());
 		
