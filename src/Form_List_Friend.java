@@ -2,7 +2,6 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
-import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -10,10 +9,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.Hashtable;
-
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -23,22 +19,15 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
-
 import ymsg.network.Session;
-import ymsg.network.SessionAdapter;
-import ymsg.network.SessionEvent;
-import ymsg.network.SessionFriendEvent;
-import ymsg.network.SessionNewMailEvent;
 import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
-import ymsg.support.MessageElement;
 
 public class Form_List_Friend extends JFrame
 {
@@ -111,7 +100,8 @@ public class Form_List_Friend extends JFrame
 		            		 listFormMessages.put(nick, formMessage);
 		            	 }            	 
 		             }
-		             else if(e.getClickCount() == 2) {
+		             else if(e.getClickCount() == 2)
+		             {
 		            	 System.out.print("double hello");
 		             }
 		         }
@@ -180,7 +170,9 @@ public class Form_List_Friend extends JFrame
 					 System.exit(0);
 				 }
 				 catch(Exception ex)
-				 {}
+				 {
+					 Tracer.Log(this.getClass(), ex);
+				 }
 			 }
 		 });
 		 
@@ -199,7 +191,7 @@ public class Form_List_Friend extends JFrame
 				 }
 				 catch(IOException ex)
 				 {
-					 
+					 Tracer.Log(this.getClass(), ex);
 				 }
 			 }
 		 });
@@ -239,7 +231,7 @@ public class Form_List_Friend extends JFrame
 				 }
 				 catch(IOException ex)
 				 {
-					 
+					 Tracer.Log(this.getClass(), ex);
 				 }
 			 }
 		 });
@@ -416,10 +408,12 @@ public class Form_List_Friend extends JFrame
 		}
 		catch (IllegalStateException ex) 
 		{
+			Tracer.Log(this.getClass(), ex);
 			JOptionPane.showMessageDialog(null, ex.getMessage());
 		}
 		catch (IOException ex) 
 		{
+			Tracer.Log(this.getClass(), ex);
 			JOptionPane.showMessageDialog(null, ex.getMessage());
 		}
 	}

@@ -2471,7 +2471,8 @@ public class Session implements StatusConstants, ServiceConstants, NetworkConsta
 
 		// -----Thread which calls event handlers
 		public void run()
-		{	for(int i=0;i<listeners.size();i++)
+		{	
+			for(int i=0;i<listeners.size();i++)
 			{	SessionListener l = (SessionListener)listeners.elementAt(i);
 				//System.out.println("@@@Entered "+ev);
 				switch(type)
