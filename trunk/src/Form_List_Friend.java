@@ -57,7 +57,7 @@ public class Form_List_Friend extends JFrame
 	private Form_Login formLogin;
 	private JMenuBar mnuBar;	
 	private ListPopupMenu popup;
-	private JPanel topPanel;
+	public JPanel topPanel;
 	public JLabel lbMail;
 	private JLabel lbMyStatus;
 	
@@ -66,8 +66,7 @@ public class Form_List_Friend extends JFrame
 	public Form_List_Friend(Session session)
 	{
 		super("Buddy List");
-		this.session = session;
-		this.session.addSessionListener(new SessionHandler());
+		this.session = session;		
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -151,7 +150,7 @@ public class Form_List_Friend extends JFrame
 		 //
 		 //lb Mail
 		 //		 
-		 this.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/nomail.png")));
+		 this.lbMail = new JLabel();
 		 
 		 //
 		 //lbMyStatus
@@ -387,41 +386,7 @@ public class Form_List_Friend extends JFrame
 			setBackground(selected ? Color.lightGray : Color.white);
 			return this;
 		}
-	}
-	
-	public void setSession(Session session)
-	{
-		this.session = session;
-		this.session.addSessionListener(new SessionHandler());
-	}
-	
-	private class SessionHandler extends SessionAdapter
-	{
-		/**
-		 * listen when the message is coming
-		 */
-		public void messageReceived(SessionEvent ev)
-		{			
-			String strFriend = ev.getFrom();
-			
-			if(listFormMessages.containsKey(strFriend)){
-				 Form_Message frmTemp = listFormMessages.get(strFriend);
-        		 if(frmTemp != null && !frmTemp.isShowing()){
-        			 frmTemp.setVisible(true);
-        			 return;
-        		 }
-        		 else if(frmTemp != null && frmTemp.isShowing()){
-        			 return;
-        		 }
-			}
-			
-			Form_Message formMessage = new Form_Message(session);
-			formMessage.setTo(strFriend);
-			formMessage.setEditableForMessageField(true);
-			listFormMessages.put(strFriend, formMessage);	   		
-	   		formMessage.setVisible(true);	   			
-		}		
-	}
+	}	
 	
 	private class ListPopupMenu  extends JPopupMenu 
 	{

@@ -37,7 +37,7 @@ public class Form_Message extends JFrame
 	private JScrollPane spPanelMessage;
 	private Container container;
 	private JButton btnSend;
-	private JTextField txtTo;
+	public JTextField txtTo;
 	private Session session;
 	private JLabel lbTo;
 	public  Document DisplayDoc;
@@ -46,8 +46,7 @@ public class Form_Message extends JFrame
 	public Form_Message(Session session)
 	{
 		
-		this.session = session;		
-		this.session.addSessionListener(new SessionHandler());
+		this.session = session;			
 		
 		//
 		//btnSend
@@ -67,6 +66,7 @@ public class Form_Message extends JFrame
 						String temp = txtMessage.getText().trim();
 						txtMessage.setText("");					
 						Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
+						pushDown();
 					}
 				}
 				catch(Exception ex)
@@ -127,6 +127,7 @@ public class Form_Message extends JFrame
 							String temp = txtMessage.getText().trim();
 							txtMessage.setText("");										
 							Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
+							pushDown();
 						}
 					}
 					catch(Exception ex)
@@ -239,22 +240,7 @@ public class Form_Message extends JFrame
 		MessageElement me = decoder.decode(message);			
 		me.appendToDocument(DisplayDoc);
 		pushDown();
-	}
-	
-	private class SessionHandler extends SessionAdapter
-	{
-		/**
-		 * listen when the message is comming
-		 */
-		public void messageReceived(SessionEvent ev)
-		{
-			String strFriend = ev.getFrom();
-			String strTo = txtTo.getText();
-			if(strFriend.equals(strTo)){
-				addInstantMessage(strFriend, ev.getMessage());
-			}
-		}
-	}
+	}	
 }
 
 
