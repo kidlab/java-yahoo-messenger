@@ -10,12 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-
-import com.sun.corba.se.impl.protocol.giopmsgheaders.MessageBase;
-
 import ymsg.network.*;
-import ymsg.support.*;
-
 
 public class Form_Add_Friend extends JFrame
 {
@@ -88,7 +83,7 @@ public class Form_Add_Friend extends JFrame
 					}
 					catch(IOException ex)
 					{
-						
+						Tracer.Log(this.getClass(), ex);
 					}
 				}
 			}

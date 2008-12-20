@@ -33,8 +33,9 @@ public class Form_Login extends JFrame
 	private Session session;
 	private Form_List_Friend formListFriend;
 	private JCheckBox chkInvisible;
+	
 	/**
-	 * Initilize Component with default setting
+	 * Initialize Component with default setting
 	 */
 	public void initilizeComponent()
 	{		
@@ -106,11 +107,14 @@ public class Form_Login extends JFrame
 	}
 	
 	/**
-	 * Constructer of Form_Login Class
+	 * Constructor of Form_Login Class
 	 */
 	public Form_Login()
 	{
 		this.initilizeComponent();
+		
+		//Set up the path of log file to store all runtime exception.
+		Tracer.setLogFile(Constant.LOG_FILE);
 	}
 	
 	public boolean login() throws Exception
@@ -135,6 +139,8 @@ public class Form_Login extends JFrame
 		}
 		catch(LoginRefusedException ex)
 		{
+			Tracer.Log(this.getClass(), ex);
+			
 			switch((int)ex.getStatus())
 			{
 				case (int)StatusConstants.STATUS_BADUSERNAME:
@@ -175,7 +181,9 @@ public class Form_Login extends JFrame
 		        }
 				catch(Exception ex) 
 		        { 
-		        	session.reset();		        
+		        	session.reset();
+		        	
+		        	Tracer.Log(this.getClass(), ex);
 		        }				
 			}
 		}
@@ -221,7 +229,9 @@ public class Form_Login extends JFrame
 					session.rejectContact(ev, "");
 				}
 				catch(IOException ex)
-				{}
+				{
+					Tracer.Log(this.getClass(), ex);
+				}
 			}
 		}
 		

@@ -5,29 +5,19 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
-
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
-
-import sun.font.Decoration;
-
 import ymsg.network.Session;
-import ymsg.network.SessionAdapter;
-import ymsg.network.SessionEvent;
-import ymsg.support.EmoticonLoader;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
-
 
 public class Form_Message extends JFrame
 {
@@ -70,7 +60,9 @@ public class Form_Message extends JFrame
 					}
 				}
 				catch(Exception ex)
-				{}
+				{
+					Tracer.Log(this.getClass(), ex);
+				}
 			}
 		});
 		
@@ -131,7 +123,9 @@ public class Form_Message extends JFrame
 						}
 					}
 					catch(Exception ex)
-					{}
+					{
+						Tracer.Log(this.getClass(), ex);
+					}
 				}
 			}
 			
@@ -219,7 +213,7 @@ public class Form_Message extends JFrame
 		}
 		catch(BadLocationException ex)
 		{
-			
+			Tracer.Log(this.getClass(), ex);
 		}		
 	}
 	
@@ -231,7 +225,11 @@ public class Form_Message extends JFrame
 		{	
 			this.txtDisplayMessage.setCaretPosition(this.txtDisplayMessage.getText().length());			
 			this.txtDisplayMessage.scrollRectToVisible( new Rectangle(0,this.txtDisplayMessage.getSize().height,1,1));			
-		}catch(Exception e) {}
+		}
+		catch(Exception e) 
+		{
+			Tracer.Log(this.getClass(), e);
+		}
 	}
 	
 	public void addInstantMessage(String strSender, String message)
@@ -242,5 +240,3 @@ public class Form_Message extends JFrame
 		pushDown();
 	}	
 }
-
-

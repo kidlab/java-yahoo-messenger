@@ -15,8 +15,6 @@ import javax.swing.JTextArea;
 
 import ymsg.network.Session;
 
-
-
 public class Form_Custom_Status extends JFrame
 {
 	private Session session;
@@ -99,7 +97,9 @@ public class Form_Custom_Status extends JFrame
 						Form_Custom_Status.this.session.setStatus(status, true);
 					}
 					catch(IOException ex)
-					{}
+					{
+						Tracer.Log(this.getClass(), ex);
+					}
 				}
 				else
 				{
@@ -108,7 +108,9 @@ public class Form_Custom_Status extends JFrame
 						Form_Custom_Status.this.session.setStatus(status, false);
 					}
 					catch(IOException ex)
-					{}
+					{
+						Tracer.Log(this.getClass(), ex);
+					}
 				}
 				
 				parent.setMyStatus();
