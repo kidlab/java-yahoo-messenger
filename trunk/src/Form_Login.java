@@ -208,7 +208,7 @@ public class Form_Login extends JFrame
 		public void contactRequestReceived(SessionEvent ev)
 		{
 			String friendId = ev.getFrom();
-			int result = JOptionPane.showConfirmDialog(null, friendId + " want to make friend with you");
+			int result = JOptionPane.showConfirmDialog(Form_Login.this, friendId + " want to make friend with you");
 			if(result == JOptionPane.OK_OPTION)
 			{
 				Form_Add_Friend formAddFriend = new Form_Add_Friend(session);
@@ -223,6 +223,11 @@ public class Form_Login extends JFrame
 				catch(IOException ex)
 				{}
 			}
+		}
+		
+		public void contactRejectionReceived(SessionEvent ev) 
+		{
+			JOptionPane.showMessageDialog(Form_Login.this, ev.getFrom() + " has decline your request.");
 		}
 		
 		/**
