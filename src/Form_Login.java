@@ -1,3 +1,4 @@
+import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -36,7 +37,7 @@ public class Form_Login extends JFrame
 	 * Initilize Component with default setting
 	 */
 	public void initilizeComponent()
-	{
+	{		
 		//
 		// lbUserName
 		//
@@ -116,6 +117,7 @@ public class Form_Login extends JFrame
 	{
 		this.session = new Session();
 		this.session.addSessionListener(new SessionHandler());
+		this.formListFriend = new Form_List_Friend(session);
 		String userName = this.txtUserName.getText().trim();
 		String passWord = "";
 		char[] tempPass = this.txtPassWords.getPassword();		
@@ -163,10 +165,9 @@ public class Form_Login extends JFrame
 					{									
 						if(session.getSessionStatus() == StatusConstants.MESSAGING)
 						{											
-							SwingModelFactory factory = new SwingModelFactory(session);
-							formListFriend = new Form_List_Friend(session);
+							SwingModelFactory factory = new SwingModelFactory(session);							
 							formListFriend.setModel(factory.createTreeModel(true));								
-							Form_Login.this.dispose();
+							Form_Login.this.setVisible(false);
 						}
 						else
 							JOptionPane.showMessageDialog(null, "Sorry, there was a problem connecting");
@@ -178,12 +179,7 @@ public class Form_Login extends JFrame
 		        }				
 			}
 		}
-	}
-	
-	public Session getSession()
-	{
-		return this.session;
-	}
+	}	
 	
 	private class SessionHandler extends SessionAdapter
 	{
@@ -202,12 +198,11 @@ public class Form_Login extends JFrame
 		
 		public void newMailReceived(SessionNewMailEvent ev)
 		{
-			/*int numberOfMail = ev.getMailCount();
+			int numberOfMail = ev.getMailCount();
 			if(numberOfMail > 0)
-				formListFriend.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/newmail.png")));
+				formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
 			else
-				formListFriend.lbMail = new JLabel(new ImageIcon(getClass().getResource("image/nomail.png")));
-			*/	
+				formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
 		}
 		
 		public void contactRequestReceived(SessionEvent ev)
@@ -228,6 +223,42 @@ public class Form_Login extends JFrame
 				catch(IOException ex)
 				{}
 			}
+		}
+		
+		/**
+		 * listen when the message is coming
+		 */
+		public void messageReceived(SessionEvent ev)
+		{			
+			String strFriend = ev.getFrom();
+			
+			if(formListFriend.listFormMessages.containsKey(strFriend)){
+				 Form_Message frmTemp = formListFriend.listFormMessages.get(strFriend);
+        		 if(frmTemp != null && !frmTemp.isShowing()){
+        			 if(strFriend.equals(frmTemp.txtTo.getText()))
+        			 {
+        				 frmTemp.addInstantMessage(strFriend, ev.getMessage());
+        				 frmTemp.setVisible(true);
+        				 return;
+        			 }
+        		 }
+        		 else if(frmTemp != null && frmTemp.isShowing()){
+        			 if(strFriend.equals(frmTemp.txtTo.getText()))
+        			 {
+        				 frmTemp.addInstantMessage(strFriend, ev.getMessage());        				 
+        				 return;
+        			 }
+        		 }
+			}
+			else
+			{
+				Form_Message formMessage = new Form_Message(session);
+				formMessage.setTo(strFriend);
+				formMessage.setEditableForMessageField(true);
+				formListFriend.listFormMessages.put(strFriend, formMessage);
+				formMessage.addInstantMessage(strFriend, ev.getMessage());
+				formMessage.setVisible(true);
+			}		
 		}
 	}
 }
