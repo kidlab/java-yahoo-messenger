@@ -179,7 +179,7 @@ public class SessionHandler implements SessionListener
 	@Override
 	public void fileTransferReceived(SessionFileTransferEvent ev)
 	{
-	
+		this.fireEvent(ServiceConstants.SERVICE_FILETRANSFER, ev);
 	}
 
 	@Override
