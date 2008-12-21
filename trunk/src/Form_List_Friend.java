@@ -24,15 +24,20 @@ import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
+
+import ymsg.network.ServiceConstants;
 import ymsg.network.Session;
+import ymsg.network.SessionEvent;
+import ymsg.network.SessionNewMailEvent;
 import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
 
-public class Form_List_Friend extends JFrame
+public class Form_List_Friend extends JFrame implements ISessionEventHandler
 {
 	private JTree friendTree;
 	private Session session;
+	private SessionHandler sessionHandler;
 	private Form_Add_Friend formAddFriend;
 	private boolean showForm = false;
 	private JMenu buddyMenu;
@@ -52,10 +57,12 @@ public class Form_List_Friend extends JFrame
 	
 	public Hashtable <String, Form_Message> listFormMessages;
 	
-	public Form_List_Friend(Session session)
+	public Form_List_Friend(Session session, SessionHandler sessionHandler)
 	{
 		super("Buddy List");
 		this.session = session;		
+		this.sessionHandler = sessionHandler;
+		this.sessionHandler.addEventHandler(this);
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -63,8 +70,10 @@ public class Form_List_Friend extends JFrame
 		this.listFormMessages = new Hashtable<String, Form_Message>();
 		this.popup = new ListPopupMenu();
 		
-		MouseListener ml = new MouseAdapter() {
-		     public void mousePressed(MouseEvent e) {
+		MouseListener ml = new MouseAdapter() 
+		{
+		     public void mousePressed(MouseEvent e) 
+		     {
 		    	//if the pressed button is not right button.
 				if(e.isMetaDown())
 					return;
@@ -88,7 +97,8 @@ public class Form_List_Friend extends JFrame
 		            			 return;
 		            		 }		            		 	            		 
 		            	 }
-		            	 Form_Message formMessage = new Form_Message(Form_List_Friend.this.session);
+		            	 Form_Message formMessage = 
+		            		 new Form_Message(Form_List_Friend.this.session, Form_List_Friend.this.sessionHandler);
 		            	 formMessage.setTitle(nick);
 		            	 formMessage.setVisible(true);	            	 
 		            	 
@@ -287,11 +297,7 @@ public class Form_List_Friend extends JFrame
 		 this.mnuBar.add(this.statusMenu);
 		 this.setJMenuBar(this.mnuBar);
 		 
-		 //
-		 //
-		 //
-		
-		Container container = this.getContentPane();
+		 Container container = this.getContentPane();
 		container.add(new JScrollPane(this.friendTree),BorderLayout.CENTER);
 		container.add(topPanel,BorderLayout.PAGE_START);
 		
@@ -459,5 +465,46 @@ public class Form_List_Friend extends JFrame
 	public void setMyStatus()
 	{
 		this.lbMyStatus.setText("My status: " + getMyStatus());
+	}
+
+	public void messageReceived(SessionEvent ev)
+	{			
+		String strFriend = ev.getFrom();
+		
+		if(this.listFormMessages.containsKey(strFriend))
+		{
+			 Form_Message frmTemp = this.listFormMessages.get(strFriend);
+    		 if(frmTemp != null && !frmTemp.isShowing()){
+    			 if(strFriend.equals(frmTemp.getFriendNick()))
+    			 {
+    				 //frmTemp.addInstantMessage(strFriend, ev.getMessage());
+    				 frmTemp.setVisible(true);
+    				 return;
+    			 }
+    		 }
+		}
+		else
+		{
+			Form_Message formMessage = new Form_Message(session, this.sessionHandler);
+			formMessage.setTo(strFriend);
+			formMessage.setEditableForMessageField(true);
+			this.listFormMessages.put(strFriend, formMessage);
+			formMessage.addInstantMessage(strFriend, ev.getMessage());
+			formMessage.setVisible(true);
+		}		
+	}
+	
+	@Override
+	public void doEvent(int eventType, SessionEvent e)
+	{
+		switch (eventType)
+		{
+			case ServiceConstants.SERVICE_MESSAGE:
+				this.messageReceived(e);
+				break;
+				
+			default:
+				break;
+		}
 	}
 }
