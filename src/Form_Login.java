@@ -1,7 +1,8 @@
-import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.IOException;
 
 import javax.swing.ImageIcon;
@@ -21,16 +22,17 @@ import ymsg.support.*;
  * @author MinhVH
  *
  */
-public class Form_Login extends JFrame
+public class Form_Login extends JFrame implements ISessionEventHandler
 {
 	private JLabel lbUserName;
 	private JLabel lbPassWords;
 	private JTextField txtUserName;
 	private JPasswordField txtPassWords;
-	private JButton	bntLogin;
-	private JButton bntExit;
+	private JButton	btnLogin;
+	private JButton btnExit;
 	private Container container;
 	private Session session;
+	private SessionHandler sessionHandler;
 	private Form_List_Friend formListFriend;
 	private JCheckBox chkInvisible;
 	
@@ -67,17 +69,20 @@ public class Form_Login extends JFrame
 		//
 		// btnLogin
 		//
-		this.bntLogin = new JButton("Login");
-		this.bntLogin.setBounds(135, 265, 75, 25);
+		this.btnLogin = new JButton("Login");
+		this.btnLogin.setBounds(135, 265, 75, 25);
 		ButtonLoginAction bntLoginAction = new ButtonLoginAction();
-		this.bntLogin.addActionListener(bntLoginAction);
+		this.btnLogin.addActionListener(bntLoginAction);
+		this.btnLogin.addKeyListener(new ButttonLoginKeyAction());
+		//Must call this method to handle the key events.
+		this.btnLogin.setFocusable(true);
 		
 		//
 		// btnExit
 		//
-		this.bntExit = new JButton("Exit");
-		this.bntExit.setBounds(220, 265, 75, 25);
-		this.bntExit.addActionListener(new ActionListener()
+		this.btnExit = new JButton("Exit");
+		this.btnExit.setBounds(220, 265, 75, 25);
+		this.btnExit.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
 			{
@@ -89,7 +94,7 @@ public class Form_Login extends JFrame
 		//
 		//chkInvisible
 		//
-		this.chkInvisible = new JCheckBox("Invisible to every one");
+		this.chkInvisible = new JCheckBox("Invisible to everyone");
 		this.chkInvisible.setBounds(132, 235, 250, 25);
 		
 		// container
@@ -100,10 +105,11 @@ public class Form_Login extends JFrame
 		this.container.add(this.txtUserName);
 		this.container.add(this.txtPassWords);
 		this.container.add(this.chkInvisible);
-		this.container.add(this.bntLogin);
-		this.container.add(this.bntExit);
+		this.container.add(this.btnLogin);
+		this.container.add(this.btnExit);
 		this.setResizable(false);
 		this.setLayout(null);
+		this.setTitle(Constant.PROGRAM_NAME);
 	}
 	
 	/**
@@ -117,18 +123,28 @@ public class Form_Login extends JFrame
 		Tracer.setLogFile(Constant.LOG_FILE);
 	}
 	
+	public SessionHandler getSessionHandler()
+	{
+		return this.sessionHandler;
+	}
+	
 	public boolean login() throws Exception
 	{
 		this.session = new Session();
-		this.session.addSessionListener(new SessionHandler());
-		this.formListFriend = new Form_List_Friend(session);
+		this.sessionHandler = new SessionHandler();
+		this.sessionHandler.addEventHandler(this);
+		this.session.addSessionListener(this.sessionHandler);
+		
+		this.formListFriend = new Form_List_Friend(this.session, this.sessionHandler);
 		String userName = this.txtUserName.getText().trim();
 		String passWord = "";
-		char[] tempPass = this.txtPassWords.getPassword();		
+		char[] tempPass = this.txtPassWords.getPassword();
+		
 		for(int i = 0; i < tempPass.length; i++)
 		{
 			passWord += tempPass[i];
 		}
+		
 		if(this.chkInvisible.isSelected())
 			this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
 		else
@@ -163,7 +179,7 @@ public class Form_Login extends JFrame
 	{
 		public void actionPerformed(ActionEvent e)
 		{			
-			if(e.getSource() == bntLogin)
+			if(e.getSource() == btnLogin)
 			{
 				try
 		        {  
@@ -189,91 +205,126 @@ public class Form_Login extends JFrame
 		}
 	}	
 	
-	private class SessionHandler extends SessionAdapter
+	private class ButttonLoginKeyAction implements KeyListener
 	{
-		public void offlineMessageReceived(SessionEvent ev) 
+
+		@Override
+		public void keyPressed(KeyEvent e)
 		{
-			String strFriend = ev.getFrom();
-			Form_Message formMessage = new Form_Message(session);
-			formMessage.setTo(strFriend);
-			formMessage.setEditableForMessageField(true);
-			//formListFriend.listFormMessages.put(strFriend, formMessage);
-			formMessage.appendtoDisplay("Offline message at " + ev.getTimestamp().toLocaleString() + "\n");
-			String message = ev.getMessage();
-			formMessage.addInstantMessage(strFriend, message);
-	   		formMessage.setVisible(true);
-		}
-		
-		public void newMailReceived(SessionNewMailEvent ev)
-		{
-			int numberOfMail = ev.getMailCount();
-			if(numberOfMail > 0)
-				formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
-			else
-				formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
-		}
-		
-		public void contactRequestReceived(SessionEvent ev)
-		{
-			String friendId = ev.getFrom();
-			int result = JOptionPane.showConfirmDialog(Form_Login.this, friendId + " want to make friend with you");
-			if(result == JOptionPane.OK_OPTION)
-			{
-				Form_Add_Friend formAddFriend = new Form_Add_Friend(session);
-				formAddFriend.txtUserId.setText(friendId);
-			}
-			else if(result == JOptionPane.CANCEL_OPTION)
-			{
-				try
-				{
-					session.rejectContact(ev, "");
-				}
-				catch(IOException ex)
-				{
-					Tracer.Log(this.getClass(), ex);
-				}
-			}
-		}
-		
-		public void contactRejectionReceived(SessionEvent ev) 
-		{
-			JOptionPane.showMessageDialog(Form_Login.this, ev.getFrom() + " has decline your request.");
-		}
-		
-		/**
-		 * listen when the message is coming
-		 */
-		public void messageReceived(SessionEvent ev)
-		{			
-			String strFriend = ev.getFrom();
+			if((e.getKeyCode() != KeyEvent.VK_ENTER)
+					|| txtUserName.getText().trim().isEmpty()
+					|| txtPassWords.getPassword().length <= 0)
+				return;
 			
-			if(formListFriend.listFormMessages.containsKey(strFriend)){
-				 Form_Message frmTemp = formListFriend.listFormMessages.get(strFriend);
-        		 if(frmTemp != null && !frmTemp.isShowing()){
-        			 if(strFriend.equals(frmTemp.txtTo.getText()))
-        			 {
-        				 frmTemp.addInstantMessage(strFriend, ev.getMessage());
-        				 frmTemp.setVisible(true);
-        				 return;
-        			 }
-        		 }
-        		 else if(frmTemp != null && frmTemp.isShowing()){
-        			 if(strFriend.equals(frmTemp.txtTo.getText()))
-        			 {
-        				 frmTemp.addInstantMessage(strFriend, ev.getMessage());        				 
-        				 return;
-        			 }
-        		 }
-			}
-			else
+			try
+	        {  
+				if(login())
+				{									
+					if(session.getSessionStatus() == StatusConstants.MESSAGING)
+					{											
+						SwingModelFactory factory = new SwingModelFactory(session);							
+						formListFriend.setModel(factory.createTreeModel(true));								
+						Form_Login.this.setVisible(false);
+					}
+					else
+						JOptionPane.showMessageDialog(null, "Sorry, there was a problem connecting");
+				}
+	        }
+			catch(Exception ex) 
+	        { 
+	        	session.reset();
+	        	
+	        	Tracer.Log(this.getClass(), ex);
+	        }	
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e)
+		{
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e)
+		{
+			// TODO Auto-generated method stub
+			
+		}		
+	}
+	
+	public void offlineMessageReceived(SessionEvent ev) 
+	{
+		String strFriend = ev.getFrom();
+		Form_Message formMessage = new Form_Message(session, this.sessionHandler);
+		formMessage.setTo(strFriend);
+		formMessage.setEditableForMessageField(true);
+		//formListFriend.listFormMessages.put(strFriend, formMessage);
+		formMessage.appendtoDisplay("Offline message at " + ev.getTimestamp().toLocaleString() + "\n");
+		String message = ev.getMessage();
+		formMessage.addInstantMessage(strFriend, message);
+	   	formMessage.setVisible(true);
+	}
+		
+	public void newMailReceived(SessionNewMailEvent ev)
+	{
+		int numberOfMail = ev.getMailCount();
+		if(numberOfMail > 0)
+			formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
+		else
+			formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
+	}
+		
+	public void contactRequestReceived(SessionEvent ev)
+	{
+		String friendId = ev.getFrom();
+		int result = JOptionPane.showConfirmDialog(Form_Login.this, friendId + " want to make friend with you");
+		if(result == JOptionPane.OK_OPTION)
+		{
+			Form_Add_Friend formAddFriend = new Form_Add_Friend(session);
+			formAddFriend.txtUserId.setText(friendId);
+		}
+		else if(result == JOptionPane.CANCEL_OPTION)
+		{
+			try
 			{
-				Form_Message formMessage = new Form_Message(session);
-				formMessage.setTo(strFriend);
-				formMessage.setEditableForMessageField(true);
-				formListFriend.listFormMessages.put(strFriend, formMessage);
-				formMessage.addInstantMessage(strFriend, ev.getMessage());
-				formMessage.setVisible(true);
-			}		
+				session.rejectContact(ev, "");
+			}
+			catch(IOException ex)
+			{
+				Tracer.Log(this.getClass(), ex);
+			}
+		}
+	}
+		
+	public void contactRejectionReceived(SessionEvent ev) 
+	{
+		JOptionPane.showMessageDialog(Form_Login.this, ev.getFrom() + " has decline your request.");
+	}		
+
+	@Override
+	public void doEvent(int eventType, SessionEvent e)
+	{
+		switch (eventType)
+		{
+			case ServiceConstants.SERVICE_X_OFFLINE:
+				this.offlineMessageReceived(e);
+				break;
+
+			case ServiceConstants.SERVICE_NEWMAIL:
+				this.newMailReceived((SessionNewMailEvent)e);
+				break;
+				
+			case ServiceConstants.SERVICE_CONTACTNEW:
+				this.contactRequestReceived(e);
+				break;
+				
+			case ServiceConstants.SERVICE_CONTACTREJECT:
+				this.contactRejectionReceived(e);
+				break;
+				
+			default:
+				break;
 		}
 	}
 }

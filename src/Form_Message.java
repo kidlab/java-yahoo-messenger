@@ -14,12 +14,16 @@ import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
+import ymsg.network.ServiceConstants;
 import ymsg.network.Session;
+import ymsg.network.SessionEvent;
+import ymsg.network.SessionNewMailEvent;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
 
-public class Form_Message extends JFrame
+public class Form_Message extends JFrame implements ISessionEventHandler
 {
 	private JTextArea txtMessage;
 	private JTextPane txtDisplayMessage;	
@@ -27,16 +31,18 @@ public class Form_Message extends JFrame
 	private JScrollPane spPanelMessage;
 	private Container container;
 	private JButton btnSend;
-	public JTextField txtTo;
+	private JTextField txtTo;
 	private Session session;
+	private SessionHandler sessionHandler;
 	private JLabel lbTo;
 	public  Document DisplayDoc;
 	private MessageDecoder decoder;
 	
-	public Form_Message(Session session)
-	{
-		
+	public Form_Message(Session session, SessionHandler sessionHandler)
+	{		
 		this.session = session;			
+		this.sessionHandler = sessionHandler;
+		this.sessionHandler.addEventHandler(this);
 		
 		//
 		//btnSend
@@ -102,13 +108,13 @@ public class Form_Message extends JFrame
 		this.txtMessage = new JTextArea();
 		this.txtMessage.setLineWrap(true);	
 		this.txtMessage.setWrapStyleWord(true);
-		this.txtMessage.setEditable(false);	
+		this.txtMessage.setEditable(false);
+		
 		this.txtMessage.addKeyListener(new KeyListener()
 		{
 			public void keyPressed(KeyEvent e)
 			{
-				int keycode = e.getKeyCode();
-				if(e.getKeyText(keycode) == "Enter")
+				if(e.getKeyCode() == KeyEvent.VK_ENTER)
 				{
 					try
 					{
@@ -160,9 +166,7 @@ public class Form_Message extends JFrame
 		//spPanelDisplay
 		//
 		this.spPanelDisplay = new JScrollPane(this.txtDisplayMessage);
-		this.spPanelDisplay.setBounds(10, 10, 250, 300);
-		
-		
+		this.spPanelDisplay.setBounds(10, 10, 250, 300);	
 
 		//
 		//Decoder setting
@@ -193,11 +197,17 @@ public class Form_Message extends JFrame
 	}	
 	
 	/*
-	 * send nick to textbox To
+	 * send nick to text box To
 	 */
 	public void setTo(String to)
 	{
 		this.txtTo.setText(to);
+		this.setTitle(to);
+	}
+	
+	public String getFriendNick()
+	{
+		return this.txtTo.getText();
 	}
 	
 	public void setEditableForMessageField(boolean b)
@@ -238,5 +248,25 @@ public class Form_Message extends JFrame
 		MessageElement me = decoder.decode(message);			
 		me.appendToDocument(DisplayDoc);
 		pushDown();
-	}	
+	}
+
+	
+	public void messageReceived(SessionEvent ev)
+	{
+		this.addInstantMessage(this.txtTo.getText(), ev.getMessage());			
+	}
+	
+	@Override
+	public void doEvent(int eventType, SessionEvent e)
+	{
+		switch (eventType)
+		{
+			case ServiceConstants.SERVICE_MESSAGE:
+				this.messageReceived(e);
+				break;
+				
+			default:
+				break;
+		}
+	}
 }
