@@ -373,10 +373,14 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 						status = "(" + yu.getCustomStatusMessage() + ")";
 						break;
 				}
+				
+				
+				//setIcon(new ImageIcon(getClass().getResource("image/online.gif")));
 				setText(yu.getId() + " " + status);
+				
 			}
 			else if(value instanceof YahooGroup)
-			{	setText( ((YahooGroup)value).getName() );
+			{	setText( ((YahooGroup)value).getName() );				
 			}
 			else
 			{	setText(value.toString());
