@@ -8,6 +8,9 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import java.awt.BorderLayout;
+
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JFrame;
 import javax.swing.JToolBar;
@@ -19,9 +22,13 @@ import javax.swing.JTextPane;
 import javax.swing.JTextField;
 import javax.swing.JTextArea;
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
+import ymsg.network.FileTransferFailedException;
 import ymsg.network.ServiceConstants;
 import ymsg.network.Session;
 import ymsg.network.SessionEvent;
@@ -104,6 +111,33 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		//
 		this.btnSendFile = new JButton();
 		this.btnSendFile.setText("Send File");
+		this.btnSendFile.addActionListener(new ActionListener()
+		{
+			public void actionPerformed(ActionEvent e)
+			{
+				File file = null;
+				JFileChooser choose = new JFileChooser();
+				choose.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				int result = choose.showOpenDialog(Form_Message.this.mainContentPane);
+				if(result == JFileChooser.APPROVE_OPTION)
+				{
+					file = choose.getSelectedFile();
+					String path = file.getAbsolutePath();
+					try
+					{
+						session.sendFileTransfer(txtTo.getText(), path, "");
+					}
+					catch(IOException ex)
+					{}
+					catch(FileTransferFailedException ex)
+					{
+						MessageElement me = decoder.decode("Send file failed");			
+						me.appendToDocument(DisplayDoc);
+						pushDown();
+					}
+				}
+			}
+		});
 		
 		//
 		//btnConference	
