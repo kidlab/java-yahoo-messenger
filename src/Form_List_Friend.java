@@ -36,23 +36,41 @@ import ymsg.network.YahooUser;
 public class Form_List_Friend extends JFrame implements ISessionEventHandler
 {
 	private JTree friendTree;
+	
 	private Session session;
+	
 	private SessionHandler sessionHandler;
+	
 	private Form_Add_Friend formAddFriend;
+	
 	private boolean showForm = false;
+	
 	private JMenu buddyMenu;
+	
 	private JMenu statusMenu;
+	
 	private JMenuItem logoutItem;
+	
 	private JMenuItem addfriendItem;
+	
 	private JMenuItem online;
+	
 	private JMenuItem invisible;
+	
 	private JMenuItem customStatus;
+	
 	private JMenuItem busy;
+	
 	private Form_Login formLogin;
+	
 	private JMenuBar mnuBar;	
+	
 	private ListPopupMenu popup;
+	
 	public JPanel topPanel;
-	public JLabel lbMail;
+	
+	private JLabel lbMail;
+	
 	private JLabel lbMyStatus;
 	
 	public Hashtable <String, Form_Message> listFormMessages;
@@ -498,6 +516,15 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		}		
 	}
 	
+	public void newMailReceived(SessionNewMailEvent ev)
+	{
+		int numberOfMail = ev.getMailCount();
+		if(numberOfMail > 0)
+			this.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
+		else
+			this.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
+	}
+	
 	@Override
 	public void doEvent(int eventType, SessionEvent e)
 	{
@@ -505,6 +532,10 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		{
 			case ServiceConstants.SERVICE_MESSAGE:
 				this.messageReceived(e);
+				break;
+			
+			case ServiceConstants.SERVICE_NEWPERSONMAIL:
+				this.newMailReceived((SessionNewMailEvent)e);
 				break;
 				
 			default:

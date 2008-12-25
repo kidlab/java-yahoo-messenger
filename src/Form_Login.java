@@ -264,16 +264,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		String message = ev.getMessage();
 		formMessage.addInstantMessage(strFriend, message);
 	   	formMessage.setVisible(true);
-	}
-		
-	public void newMailReceived(SessionNewMailEvent ev)
-	{
-		int numberOfMail = ev.getMailCount();
-		if(numberOfMail > 0)
-			formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
-		else
-			formListFriend.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
-	}
+	}	
 		
 	public void contactRequestReceived(SessionEvent ev)
 	{
@@ -309,11 +300,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		{
 			case ServiceConstants.SERVICE_X_OFFLINE:
 				this.offlineMessageReceived(e);
-				break;
-
-			case ServiceConstants.SERVICE_NEWMAIL:
-				this.newMailReceived((SessionNewMailEvent)e);
-				break;
+				break;			
 				
 			case ServiceConstants.SERVICE_CONTACTNEW:
 				this.contactRequestReceived(e);
