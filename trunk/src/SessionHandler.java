@@ -221,7 +221,7 @@ public class SessionHandler implements SessionListener
 	@Override
 	public void newMailReceived(SessionNewMailEvent ev) 
 	{
-		this.fireEvent(ServiceConstants.SERVICE_NEWMAIL, ev);
+		this.fireEvent(ServiceConstants.SERVICE_NEWPERSONMAIL, ev);
 	}
 
 	@Override
