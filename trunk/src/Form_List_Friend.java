@@ -2,14 +2,17 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
+import java.awt.Desktop;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
+import java.net.URI;
 import java.util.Hashtable;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -20,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.border.LineBorder;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -69,7 +73,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	
 	public JPanel topPanel;
 	
-	private JLabel lbMail;
+	private JButton btnMail;
 	
 	private JLabel lbMyStatus;
 	
@@ -99,8 +103,11 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		         int selRow = friendTree.getRowForLocation(e.getX(), e.getY());
 		         TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		         
 		         if(selRow != -1) {
-		             if(e.getClickCount() == 1) {		            	 
-		            	
+		             if(e.getClickCount() == 1) {            	
+		            	 
+		             }
+		             else if(e.getClickCount() == 2)
+		             {
 		            	 String nick = getNickToAddressField(selPath);
 		            	 if(listFormMessages.containsKey(nick))
 		            	 {
@@ -127,10 +134,6 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		            		 formMessage.setEditableForMessageField(true);
 		            		 listFormMessages.put(nick, formMessage);
 		            	 }            	 
-		             }
-		             else if(e.getClickCount() == 2)
-		             {
-		            	 System.out.print("double hello");
 		             }
 		         }
 		     }
@@ -166,9 +169,41 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 this.friendTree.addMouseListener(ml);	 
 		 
 		 //
-		 //lb Mail
+		 //btn Mail
 		 //		 
-		 this.lbMail = new JLabel();
+		 this.btnMail = new JButton();
+		 this.btnMail.setBorderPainted(false);
+		 this.btnMail.setBackground(Color.lightGray);
+		 this.btnMail.setSize(20, 15);
+		 //this.btnMail.setOpaque(false);
+		 //this.btnMail.setContentAreaFilled(false);
+		 this.btnMail.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {
+				 try
+				 {
+					 URI url = new URI("https://login.yahoo.com/config/login_verify2?&.src=ym");
+					 Desktop.getDesktop().browse(url);
+				 }
+				 catch(Exception ex)
+				 {}
+				 
+			 }
+		 });		 
+
+		 this.btnMail.addMouseListener(new MouseAdapter()
+		 {
+			 public void mouseEntered(MouseEvent e)
+			 {
+				 btnMail.setBackground(Color.gray);
+			 }
+			 
+			 public void mouseExited(MouseEvent e)
+			 {
+				 btnMail.setBackground(Color.LIGHT_GRAY);
+			 }
+		 });
 		 
 		 //
 		 //lbMyStatus
@@ -182,8 +217,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 //
 		 this.topPanel = new JPanel(new BorderLayout());
 		 this.topPanel.add(this.lbMyStatus,BorderLayout.LINE_START);
-		 this.topPanel.add(this.lbMail,BorderLayout.LINE_END);
-		
+		 this.topPanel.add(this.btnMail,BorderLayout.LINE_END);		
 		 
 		 //
 		 //Logout item
@@ -520,9 +554,15 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	{
 		int numberOfMail = ev.getMailCount();
 		if(numberOfMail > 0)
-			this.lbMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
+		{
+			this.btnMail.setIcon(new ImageIcon(getClass().getResource("image/newmail.png")));
+			this.btnMail.setToolTipText(String.valueOf(numberOfMail) + " mail(s) unread");
+		}
 		else
-			this.lbMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));				
+		{
+			this.btnMail.setIcon(new ImageIcon(getClass().getResource("image/nomail.png")));
+			this.btnMail.setToolTipText("0 mail unread");
+		}
 	}
 	
 	@Override
