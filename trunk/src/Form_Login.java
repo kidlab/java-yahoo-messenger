@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
+import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -135,6 +136,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		this.sessionHandler.addEventHandler(this);
 		this.session.addSessionListener(this.sessionHandler);
 		
+		
 		this.formListFriend = new Form_List_Friend(this.session, this.sessionHandler);
 		String userName = this.txtUserName.getText().trim();
 		String passWord = "";
@@ -184,7 +186,9 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 				try
 		        {  
 					if(login())
-					{									
+					{	
+						//YahooGroup[] yg = session.getGroups();
+						//Vector<YahooUser> list = yg[0].getMembers();
 						if(session.getSessionStatus() == StatusConstants.MESSAGING)
 						{											
 							SwingModelFactory factory = new SwingModelFactory(session);							
@@ -219,9 +223,9 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 			try
 	        {  
 				if(login())
-				{									
+				{						
 					if(session.getSessionStatus() == StatusConstants.MESSAGING)
-					{											
+					{								
 						SwingModelFactory factory = new SwingModelFactory(session);							
 						formListFriend.setModel(factory.createTreeModel(true));								
 						Form_Login.this.setVisible(false);

@@ -90,7 +90,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		this.friendTree.setCellRenderer(new CellRenderer());
 		this.friendTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);		
 		this.listFormMessages = new Hashtable<String, Form_Message>();
-		this.popup = new ListPopupMenu();
+		this.popup = new ListPopupMenu();		
 		
 		MouseListener ml = new MouseAdapter() 
 		{
