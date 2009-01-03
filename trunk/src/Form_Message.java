@@ -32,6 +32,7 @@ import ymsg.network.FileTransferFailedException;
 import ymsg.network.ServiceConstants;
 import ymsg.network.Session;
 import ymsg.network.SessionEvent;
+import ymsg.network.SessionFileTransferEvent;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
@@ -406,6 +407,19 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		this.addInstantMessage(this.txtTo.getText(), ev.getMessage());			
 	}
 	
+	public void fileTransferReceived(SessionFileTransferEvent ev)
+	{
+		int result = JOptionPane.showConfirmDialog(Form_Message.this, ev.getFrom() + " send file t you.");
+		if(result == JOptionPane.OK_OPTION)
+		{
+			
+		}
+		else if(result == JOptionPane.CANCEL_OPTION)
+		{
+			return;
+		}
+	}
+	
 	@Override
 	public void doEvent(int eventType, SessionEvent e)
 	{
@@ -413,6 +427,10 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		{
 			case ServiceConstants.SERVICE_MESSAGE:
 				this.messageReceived(e);
+				break;
+			
+			case ServiceConstants.SERVICE_FILETRANSFER:
+				this.fileTransferReceived((SessionFileTransferEvent)e);
 				break;
 				
 			default:

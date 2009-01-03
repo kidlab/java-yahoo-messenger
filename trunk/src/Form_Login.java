@@ -188,7 +188,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 					if(login())
 					{	
 						//YahooGroup[] yg = session.getGroups();
-						//Vector<YahooUser> list = yg[0].getMembers();
+						//Vector<YahooUser> list = yg[0].getMembers();						
 						if(session.getSessionStatus() == StatusConstants.MESSAGING)
 						{											
 							SwingModelFactory factory = new SwingModelFactory(session);							
