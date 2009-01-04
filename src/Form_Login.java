@@ -28,6 +28,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 {
 	private JLabel lbUserName;
 	private JLabel lbPassWords;
+	private JLabel lbLogo;
 	private JTextField txtUserName;
 	private JPasswordField txtPassWords;
 	private JButton	btnLogin;
@@ -42,24 +43,30 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	 * Initialize Component with default setting
 	 */
 	public void initilizeComponent()
-	{		
+	{	
+		//
+		// lbLogo
+		//
+		this.lbLogo = new JLabel(new ImageIcon(getClass().getResource("image/logo.gif")));
+		this.lbLogo.setBounds(50, 30, 235, 200);		
+		
 		//
 		// lbUserName
 		//
 		this.lbUserName = new JLabel("Username:");
-		this.lbUserName.setBounds(40, 180, 80, 20);
+		this.lbUserName.setBounds(40, 250, 80, 20);
 		
 		//
 		// lbPassWords
 		//
 		this.lbPassWords = new JLabel("Passwords:");
-		this.lbPassWords.setBounds(40, 210, 90, 20);
+		this.lbPassWords.setBounds(40, 280, 90, 20);
 		
 		//
 		// txtUserName
 		//
 		this.txtUserName = new JTextField();
-		this.txtUserName.setBounds(135,175,160,23);
+		this.txtUserName.setBounds(135,245,160,23);
 		this.txtUserName.addKeyListener(new LoginKeyAdapter());
 		
 		//
@@ -67,7 +74,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		//
 		//
 		this.txtPassWords = new JPasswordField();
-		this.txtPassWords.setBounds(135, 205, 160, 23);
+		this.txtPassWords.setBounds(135, 275, 160, 23);
 		this.txtPassWords.enableInputMethods(true);
 		this.txtPassWords.addKeyListener(new LoginKeyAdapter());
 		
@@ -75,7 +82,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		// btnLogin
 		//
 		this.btnLogin = new JButton("Login");
-		this.btnLogin.setBounds(135, 265, 75, 25);
+		this.btnLogin.setBounds(135, 335, 75, 25);
 		ButtonLoginAction bntLoginAction = new ButtonLoginAction();
 		this.btnLogin.addActionListener(bntLoginAction);
 		
@@ -83,7 +90,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		// btnExit
 		//
 		this.btnExit = new JButton("Exit");
-		this.btnExit.setBounds(220, 265, 75, 25);
+		this.btnExit.setBounds(220, 335, 75, 25);
 		this.btnExit.addActionListener(new ActionListener()
 		{
 			public void actionPerformed(ActionEvent e)
@@ -97,11 +104,12 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		//chkInvisible
 		//
 		this.chkInvisible = new JCheckBox("Invisible to everyone");
-		this.chkInvisible.setBounds(132, 235, 250, 25);
+		this.chkInvisible.setBounds(132, 305, 250, 25);
 		
 		// container
 		//
 		this.container = this.getContentPane();
+		this.container.add(this.lbLogo);
 		this.container.add(this.lbUserName);
 		this.container.add(this.lbPassWords);
 		this.container.add(this.txtUserName);
