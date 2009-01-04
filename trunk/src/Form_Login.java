@@ -1,6 +1,7 @@
 import java.awt.Container;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -59,6 +60,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		//
 		this.txtUserName = new JTextField();
 		this.txtUserName.setBounds(135,175,160,23);
+		this.txtUserName.addKeyListener(new LoginKeyAdapter());
 		
 		//
 		// txtPassWords
@@ -67,6 +69,8 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		this.txtPassWords = new JPasswordField();
 		this.txtPassWords.setBounds(135, 205, 160, 23);
 		this.txtPassWords.enableInputMethods(true);
+		this.txtPassWords.addKeyListener(new LoginKeyAdapter());
+		
 		//
 		// btnLogin
 		//
@@ -74,9 +78,6 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		this.btnLogin.setBounds(135, 265, 75, 25);
 		ButtonLoginAction bntLoginAction = new ButtonLoginAction();
 		this.btnLogin.addActionListener(bntLoginAction);
-		this.btnLogin.addKeyListener(new ButttonLoginKeyAction());
-		//Must call this method to handle the key events.
-		this.btnLogin.setFocusable(true);
 		
 		//
 		// btnExit
@@ -207,54 +208,6 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		        }				
 			}
 		}
-	}	
-	
-	private class ButttonLoginKeyAction implements KeyListener
-	{
-
-		@Override
-		public void keyPressed(KeyEvent e)
-		{
-			if((e.getKeyCode() != KeyEvent.VK_ENTER)
-					|| txtUserName.getText().trim().isEmpty()
-					|| txtPassWords.getPassword().length <= 0)
-				return;
-			
-			try
-	        {  
-				if(login())
-				{						
-					if(session.getSessionStatus() == StatusConstants.MESSAGING)
-					{								
-						SwingModelFactory factory = new SwingModelFactory(session);							
-						formListFriend.setModel(factory.createTreeModel(true));								
-						Form_Login.this.setVisible(false);
-					}
-					else
-						JOptionPane.showMessageDialog(null, "Sorry, there was a problem connecting");
-				}
-	        }
-			catch(Exception ex) 
-	        { 
-	        	session.reset();
-	        	
-	        	Tracer.Log(this.getClass(), ex);
-	        }	
-		}
-
-		@Override
-		public void keyReleased(KeyEvent e)
-		{
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e)
-		{
-			// TODO Auto-generated method stub
-			
-		}		
 	}
 	
 	public void offlineMessageReceived(SessionEvent ev) 
@@ -316,6 +269,38 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 				
 			default:
 				break;
+		}
+	}
+	
+	private class LoginKeyAdapter extends KeyAdapter
+	{
+		public void keyPressed(KeyEvent e)
+		{
+			if((e.getKeyCode() != KeyEvent.VK_ENTER)
+					|| txtUserName.getText().trim().isEmpty()
+					|| txtPassWords.getPassword().length <= 0)
+				return;
+			
+			try
+	        {  
+				if(login())
+				{						
+					if(session.getSessionStatus() == StatusConstants.MESSAGING)
+					{								
+						SwingModelFactory factory = new SwingModelFactory(session);							
+						formListFriend.setModel(factory.createTreeModel(true));								
+						Form_Login.this.setVisible(false);
+					}
+					else
+						JOptionPane.showMessageDialog(null, "Sorry, there was a problem connecting");
+				}
+	        }
+			catch(Exception ex) 
+	        { 
+	        	session.reset();
+	        	
+	        	Tracer.Log(this.getClass(), ex);
+	        }		
 		}
 	}
 }
