@@ -77,6 +77,8 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	
 	private MessageDecoder decoder;
 	
+	private Dlg_MakeConference dlgMakeConference;
+	
 	/**
 	 * This is the default constructor
 	 */
@@ -107,6 +109,8 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	 */
 	private void initializeComponents() 
 	{
+		this.dlgMakeConference = new Dlg_MakeConference(this, true);
+		
 		//
 		//btnSendFile	
 		//
@@ -145,7 +149,8 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		//
 		this.btnConference = new JButton();
 		this.btnConference.setText("Conference");
-				
+		this.btnConference.addActionListener(new ConferenceActionListener());
+		
 		//
 		//mainToolBar	
 		//
@@ -183,7 +188,7 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 						MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
 						me.appendToDocument(DisplayDoc);							
 						String temp = txtMessage.getText().trim();
-						txtMessage.setText("");					
+						txtMessage.setText(null);
 						Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
 						pushDown();
 					}
@@ -212,9 +217,8 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 			{
 				System.out.print(txtTo.getText().length());
 				if(txtTo.getText().length() == 0)
-				{
-					
-					txtMessage.setText("");
+				{					
+					txtMessage.setText(null);
 					setEditableForMessageField(false);					
 				}
 				else
@@ -253,7 +257,7 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 							MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
 							me.appendToDocument(DisplayDoc);							
 							String temp = txtMessage.getText().trim();
-							txtMessage.setText("");										
+							txtMessage.setText(null);
 							Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
 							pushDown();
 						}
@@ -404,6 +408,10 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	
 	public void messageReceived(SessionEvent ev)
 	{
+		String strTo = ev.getFrom();
+		if(!strTo.equals(this.txtTo.getText()))
+			return;
+		
 		this.addInstantMessage(this.txtTo.getText(), ev.getMessage());			
 	}
 	
@@ -436,5 +444,27 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 			default:
 				break;
 		}
+	}
+	
+	private class ConferenceActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			dlgMakeConference.setLocationRelativeTo(Form_Message.this);
+			
+			//Add the current friend'id to the conference list
+			dlgMakeConference.addUser(getFriendNick());
+			
+			//Show the conference dialog.
+			dlgMakeConference.setVisible(true);
+			
+			int option = dlgMakeConference.getSelectedValue();
+			if(option == JOptionPane.OK_OPTION)
+			{
+				//Show the Form_Conference;
+			}
+			
+		}		
 	}
 }

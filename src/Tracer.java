@@ -11,7 +11,7 @@ public class Tracer
 	private static String STRING_FORMAT = "UTF8";
 	private static String logFilePath = DEFAULT_LOG_FILE;
 	private static final String DEFAULT_MESSAGE_FORMAT = 
-			"%1$s****************************************************%1$s[%2$s][%3$s]:%1$s%4$s";
+			"%1$s%1$s****************************************************%1$s[%2$s][%3$s]:%1$s%4$s";
 	private static boolean isBusy = false;
 	
 	/**

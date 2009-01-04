@@ -45,9 +45,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	
 	private SessionHandler sessionHandler;
 	
-	private Form_Add_Friend formAddFriend;
-	
-	private boolean showForm = false;
+	private Form_Add_Friend formAddFriend;	
 	
 	private JMenu buddyMenu;
 	
@@ -63,9 +61,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	
 	private JMenuItem customStatus;
 	
-	private JMenuItem busy;
-	
-	private Form_Login formLogin;
+	private JMenuItem busy;	
 	
 	private JMenuBar mnuBar;	
 	
@@ -100,42 +96,48 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 				if(e.isMetaDown())
 					return;
 		    	 
-		         int selRow = friendTree.getRowForLocation(e.getX(), e.getY());
-		         TreePath selPath = friendTree.getPathForLocation(e.getX(), e.getY());		         
-		         if(selRow != -1) {
-		             if(e.getClickCount() == 1) {            	
+		         TreePath selPath = friendTree.getSelectionPath();		         
+		         if(selPath == null)
+		        	 return;
+		         
+		         int pathCount = selPath.getPathCount();
+		         
+		         if(pathCount <= 2)
+		        	 return;
+		             
+		         if(e.getClickCount() == 1)
+		         {            	
 		            	 
-		             }
-		             else if(e.getClickCount() == 2)
-		             {
-		            	 String nick = getNickToAddressField(selPath);
-		            	 if(listFormMessages.containsKey(nick))
-		            	 {
-		            		 Form_Message frmTemp = listFormMessages.get(nick);
-		            		 if(frmTemp != null && !frmTemp.isShowing())
-		            		 {
-		            			 frmTemp.setVisible(true);
-		            			 return;
-		            		 }
-		            		 else if(frmTemp != null && frmTemp.isShowing())
-		            		 {
-		            			 return;
-		            		 }		            		 	            		 
-		            	 }
-		            	 Form_Message formMessage = 
-		            		 new Form_Message(Form_List_Friend.this.session, Form_List_Friend.this.sessionHandler);
-		            	 formMessage.setTitle(nick);
-		            	 formMessage.setVisible(true);	            	 
-		            	 
-		            	 if(nick.length() == 0);
-		            	 else
-		            	 {
-		            		 formMessage.setTo(nick);
-		            		 formMessage.setEditableForMessageField(true);
-		            		 listFormMessages.put(nick, formMessage);
-		            	 }            	 
-		             }
 		         }
+		         else if(e.getClickCount() == 2)
+		         {
+		           	 String nick = getNickToAddressField(selPath);
+		           	 if(listFormMessages.containsKey(nick))
+		           	 {
+		           		 Form_Message frmTemp = listFormMessages.get(nick);
+		           		 if(frmTemp != null && !frmTemp.isShowing())
+		           		 {
+		           			 frmTemp.setVisible(true);
+		           			 return;
+		           		 }
+		           		 else if(frmTemp != null && frmTemp.isShowing())
+		           		 {
+		           			 return;
+		           		 }		            		 	            		 
+		           	 }
+		           	 Form_Message formMessage = 
+		           		 new Form_Message(Form_List_Friend.this.session, Form_List_Friend.this.sessionHandler);
+		           	 formMessage.setTitle(nick);
+		           	 formMessage.setVisible(true);	            	 
+		           	 
+		           	 if(nick.length() == 0);
+		           	 else
+		           	 {
+		           		 formMessage.setTo(nick);
+		           		 formMessage.setEditableForMessageField(true);
+		           		 listFormMessages.put(nick, formMessage);
+		           	 }            	 
+		        }
 		     }
 		     
 		     public void mouseReleased(MouseEvent e)
@@ -169,7 +171,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 this.friendTree.addMouseListener(ml);	 
 		 
 		 //
-		 //btn Mail
+		 //btnMail
 		 //		 
 		 this.btnMail = new JButton();
 		 this.btnMail.setBorderPainted(false);
@@ -369,7 +371,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
     	 {
     		 int end = temp.indexOf(" ");
     		 int start = 3;
-    		 result = temp.substring(start, end);    		 		            		 
+    		 result = temp.substring(start, end);
     	 }
 		
 		return result;
@@ -381,7 +383,8 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	}
 	
 	private class CellRenderer extends JLabel implements TreeCellRenderer
-	{	public Component getTreeCellRendererComponent(JTree tree,Object value,
+	{	
+		public Component getTreeCellRendererComponent(JTree tree,Object value,
 			boolean selected,boolean expanded,boolean leaf,int row,boolean focus)
 		{	if(value instanceof YahooUser)
 			{	YahooUser yu = (YahooUser)value;
@@ -424,8 +427,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 					case (int)StatusConstants.STATUS_CUSTOM:
 						status = "(" + yu.getCustomStatusMessage() + ")";
 						break;
-				}
-				
+				}				
 				
 				//setIcon(new ImageIcon(getClass().getResource("image/online.gif")));
 				setText(yu.getId() + " " + status);
