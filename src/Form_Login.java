@@ -156,6 +156,7 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 		try
 		{
 			session.login(userName, passWord);
+			formListFriend.setVisible(true);
 		}
 		catch(LoginRefusedException ex)
 		{

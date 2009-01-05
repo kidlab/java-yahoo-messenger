@@ -6,8 +6,6 @@ import ymsg.network.Session;
  */
 public class BaseFrame extends JFrame
 {
-	private static final long	serialVersionUID	= 1L;
-	
 	/**
 	 * The session object will be used for this class and all of its derive class.
 	 */
