@@ -2,6 +2,8 @@ import java.awt.BorderLayout;
 import javax.swing.JPanel;
 import java.awt.GridBagLayout;
 import java.awt.Dimension;
+import java.awt.Rectangle;
+
 import javax.swing.JToolBar;
 import javax.swing.JButton;
 import java.awt.GridBagConstraints;
@@ -23,9 +25,11 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
 import ymsg.network.ServiceConstants;
+import ymsg.network.SessionConferenceEvent;
 import ymsg.network.SessionEvent;
 import ymsg.network.SessionFileTransferEvent;
 import ymsg.network.YahooConference;
+import ymsg.network.YahooIdentity;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
@@ -260,18 +264,35 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		this.setContentPane(contentPane);
 	}
 	
+	public void acceptConference(String[] users, YahooConference yConference)
+	{
+		this.yahooConference = yConference;
+		this.loadUsers(users);
+	}
+	
+	private void loadUsers(String[] users)
+	{
+		listModel = new DefaultListModel();
+		lstUsers.setModel(listModel);
+		
+		//Add users to list view.
+		int size = users.length;
+		for(int id = 0; id < size; id++)
+		{
+			this.listModel.addElement(users[id]);
+		}
+		YahooIdentity yi = session.getLoginIdentity();
+		this.listModel.addElement(yi.getId() + " - me");
+	}
+	
 	public void createConference(String[] users, String msg)
 	{
 		try
 		{
-			//Add users to list view.
-			int size = users.length;
-			for(int id = 0; id < size; id++)
-			{
-				this.listModel.addElement(users[id]);
-			}
+			this.loadUsers(users);
 			
-			this.yahooConference = session.createConference(users, msg, session.getLoginIdentity());			
+			YahooIdentity yi = session.getLoginIdentity();
+			this.yahooConference = session.createConference(users, msg, yi);			
 		}
 		catch (Exception exc) 
 		{
@@ -298,6 +319,22 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 	{
 		public void actionPerformed(java.awt.event.ActionEvent e)
 		{
+			try
+			{
+				if(txtMessage.getText().trim().length() > 0)
+				{
+					MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
+					me.appendToDocument(displayDoc);							
+					String temp = txtMessage.getText().trim();
+					txtMessage.setText(null);
+					session.sendConferenceMessage(yahooConference, temp);
+					pushDown();
+				}
+			}
+			catch(Exception ex)
+			{
+				Tracer.Log(this.getClass(), ex);
+			}
 		}
 	}
 	
@@ -312,15 +349,49 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 	{
 		public void keyPressed(KeyEvent e)
 		{			
+			try
+			{
+				if(e.getKeyCode() != KeyEvent.VK_ENTER)
+					return;
+				
+				if(txtMessage.getText().trim().length() > 0)
+				{
+					MessageElement me = decoder.decode("me: "+ txtMessage.getText());			
+					me.appendToDocument(displayDoc);							
+					String temp = txtMessage.getText().trim();
+					txtMessage.setText(null);
+					session.sendConferenceMessage(yahooConference, temp);
+					pushDown();
+				}
+			}
+			catch(Exception ex)
+			{
+				Tracer.Log(this.getClass(), ex);
+			}
 		}
 	}
 
+	/**
+	 * move to the last line in display box
+	 */
+	public void pushDown()
+	{	try
+		{	
+			this.txtConference.setCaretPosition(this.txtConference.getText().length());			
+			this.txtConference.scrollRectToVisible( new Rectangle(0,this.txtConference.getSize().height,1,1));			
+		}
+		catch(Exception e) 
+		{
+			Tracer.Log(this.getClass(), e);
+		}
+	}
+	
 	public void addInstantMessage(String strSender, String message)
 	{		
-		/*appendtoDisplay(strSender + ": ");			
+		appendtoDisplay(strSender + ": ");			
 		MessageElement me = decoder.decode(message);			
-		me.appendToDocument(DisplayDoc);
-		pushDown();*/
+		me.appendToDocument(displayDoc);
+		pushDown();
 	}
 	
 	public void appendtoDisplay(String str)
@@ -357,6 +428,28 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		}
 	}
 	
+	public void conferenceMessageReceived(SessionConferenceEvent ev) 
+	{
+		String strTo = ev.getFrom();
+		if(!this.listModel.contains(strTo))
+			return;
+		
+		this.addInstantMessage(strTo, ev.getMessage());	
+	}
+	
+	public void conferenceInviteReceived(SessionConferenceEvent ev) 
+	{
+		String strFrom = ev.getFrom();
+		String strMessage = ev.getMessage();
+		int selectedValue = 
+			Helper.ConfirmWithCancel("You are invited to join the conference from: " + strFrom + ". Greeting message: " + strMessage);
+		if(selectedValue == JOptionPane.YES_OPTION)
+		{
+			
+		}
+	}
+
+	
 	@Override
 	public void doSessionEvent(int eventType, SessionEvent e)
 	{
@@ -368,6 +461,14 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 			
 			case ServiceConstants.SERVICE_FILETRANSFER:
 				this.fileTransferReceived((SessionFileTransferEvent)e);
+				break;
+				
+			case ServiceConstants.SERVICE_CONFMSG:
+				this.conferenceMessageReceived((SessionConferenceEvent) e);
+				break;
+				
+			case ServiceConstants.SERVICE_CONFINVITE:
+				this.conferenceInviteReceived((SessionConferenceEvent)e);
 				break;
 				
 			default:

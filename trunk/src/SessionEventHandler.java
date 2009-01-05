@@ -144,7 +144,7 @@ public class SessionEventHandler implements SessionListener
 	@Override
 	public void conferenceInviteReceived(SessionConferenceEvent ev) 
 	{
-	
+		this.fireEvent(ServiceConstants.SERVICE_CONFINVITE, ev);
 	}
 
 	@Override
@@ -156,13 +156,13 @@ public class SessionEventHandler implements SessionListener
 	@Override
 	public void conferenceLogonReceived(SessionConferenceEvent ev)
 	{
-	
+		
 	}
 
 	@Override
 	public void conferenceMessageReceived(SessionConferenceEvent ev) 
 	{
-	
+		this.fireEvent(ServiceConstants.SERVICE_CONFMSG, ev);
 	}
 
 	@Override

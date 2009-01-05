@@ -103,9 +103,7 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 	 * @return void
 	 */
 	private void initializeComponents() 
-	{
-		this.dlgMakeConference = new Dlg_MakeConference(this, true);
-		
+	{	
 		//
 		//btnSendFile	
 		//
@@ -440,12 +438,12 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 		}
 	}
 	
-	private class ConferenceActionListener implements ActionListener
+	private void showConferenceDialog()
 	{
-		@Override
-		public void actionPerformed(ActionEvent e)
+		try
 		{
-			SwingModelFactory factory = new SwingModelFactory(session);							
+			SwingModelFactory factory = new SwingModelFactory(session);	
+			dlgMakeConference = new Dlg_MakeConference(Form_Message.this, true);
 			dlgMakeConference.setTreeModel(factory.createTreeModel(true));
 			
 			dlgMakeConference.setLocationRelativeTo(Form_Message.this);
@@ -468,7 +466,21 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 				String msg = dlgMakeConference.getGreetingMessage();
 				frmConference.createConference(users, msg);
 				frmConference.setVisible(true);
-			}			
+			}
+		}
+		catch (Exception exc) 
+		{
+			Tracer.Log(this.getClass(), exc);
+			Helper.Error(UserMsg.MAKE_CONFERENCE_FAILED);
+		}
+	}
+	
+	private class ConferenceActionListener implements ActionListener
+	{
+		@Override
+		public void actionPerformed(ActionEvent e)
+		{
+			
 		}		
 	}
 }

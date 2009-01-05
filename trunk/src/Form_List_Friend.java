@@ -31,11 +31,14 @@ import javax.swing.tree.TreeSelectionModel;
 
 import ymsg.network.ServiceConstants;
 import ymsg.network.Session;
+import ymsg.network.SessionConferenceEvent;
 import ymsg.network.SessionEvent;
 import ymsg.network.SessionNewMailEvent;
 import ymsg.network.StatusConstants;
+import ymsg.network.YahooConference;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
+import ymsg.support.SwingModelFactory;
 
 public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 {
@@ -68,6 +71,8 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	private JButton btnMail;
 	
 	private JLabel lbMyStatus;
+	
+	private Form_Conference frmConference;
 	
 	public Hashtable <String, Form_Message> listFormMessages;
 	
@@ -350,7 +355,6 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		
 		pack();
 		this.setSize(350,550);
-		this.setVisible(true);
 		
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -498,6 +502,44 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		}
 	}
 	
+	public void conferenceInviteReceived(SessionConferenceEvent ev) 
+	{
+		try
+		{
+			String strFrom = ev.getFrom();
+			String strMessage = ev.getMessage();
+			int selectedValue = 
+				Helper.ConfirmWithCancel("You are invited to join the conference from: " + strFrom + ". Greeting message: " + strMessage);
+			if(selectedValue == JOptionPane.YES_OPTION)
+			{
+				YahooConference yConference = ev.getRoom();
+				session.acceptConferenceInvite(yConference);
+				
+				//Show the Form_Conference;
+				frmConference = new Form_Conference();
+				YahooUser[] yUsers = ev.getRoom().getUsersArray();
+				int size = yUsers.length;
+				String[] users = new String[size];
+				for(int id = 0; id < size; id++)
+				{
+					users[id] = yUsers[id].getId();
+				}
+				
+				frmConference.acceptConference(users, yConference);
+				frmConference.setVisible(true);
+			}
+			else
+			{
+				
+			}
+		}
+		catch (Exception exc) 
+		{
+			Tracer.Log(this.getClass(), exc);
+			Helper.Error(UserMsg.MAKE_CONFERENCE_FAILED);
+		}
+	}
+	
 	@Override
 	public void doSessionEvent(int eventType, SessionEvent e)
 	{
@@ -509,6 +551,10 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 			
 			case ServiceConstants.SERVICE_NEWPERSONMAIL:
 				this.newMailReceived((SessionNewMailEvent)e);
+				break;
+				
+			case ServiceConstants.SERVICE_CONFINVITE:
+				this.conferenceInviteReceived((SessionConferenceEvent)e);
 				break;
 				
 			default:
