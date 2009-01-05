@@ -67,4 +67,18 @@ public class Helper
 		
 		return selectedValue;
 	}
+	
+	public static String GetUserID(String yahooUserInfo)
+	{
+		String userID = "";
+		int indexOfID = Constant.ID_FORMAT.length();
+		String check = yahooUserInfo.substring(0, indexOfID);		            	 
+    	if(check.equals(Constant.ID_FORMAT))
+    	{
+    		int end = yahooUserInfo.indexOf(" ");
+    		userID = yahooUserInfo.substring(indexOfID, end);
+    	}
+    	
+    	return userID;
+	}
 }

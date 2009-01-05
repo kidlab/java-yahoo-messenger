@@ -1,6 +1,5 @@
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 import ymsg.network.ServiceConstants;
@@ -15,14 +14,14 @@ import ymsg.network.SessionListener;
 import ymsg.network.SessionNewMailEvent;
 import ymsg.network.SessionNotifyEvent;
 
-public class SessionHandler implements SessionListener
+public class SessionEventHandler implements SessionListener
 {
 	private List<ISessionEventHandler> eventHandlers;
 	
 	/**
 	 * Initialize a new instance of SessionHandler with the default settings.
 	 */
-	public SessionHandler()
+	public SessionEventHandler()
 	{
 		this.eventHandlers = new ArrayList<ISessionEventHandler>();
 	}
@@ -48,16 +47,23 @@ public class SessionHandler implements SessionListener
 	}
 	
 	/**
-	 * Add a new session event listener
+	 * Add a new object that will receive the Session events.
 	 * @param handler
 	 * 	A listener that derives from or implements of {@link ISessionEventHandler}.
 	 */
-	public void addEventHandler(ISessionEventHandler handler)
+	public void addEventReciever(ISessionEventHandler handler)
 	{		
-		List<ISessionEventHandler> safeList = Collections.synchronizedList(this.eventHandlers);
-		synchronized (safeList)
+		try
 		{
-			safeList.add(handler);
+			List<ISessionEventHandler> safeList = Collections.synchronizedList(this.eventHandlers);
+			synchronized (safeList)
+			{
+				safeList.add(handler);
+			}
+		}
+		catch (Exception exc)
+		{
+			Tracer.Log(this.getClass(), exc);
 		}
 	}
 	
@@ -70,14 +76,21 @@ public class SessionHandler implements SessionListener
 	 */
 	protected void fireEvent(int eventType, SessionEvent e)
 	{
-		List<ISessionEventHandler> safeList = Collections.synchronizedList(this.eventHandlers);
-		synchronized (safeList)
+		try
 		{
-			for(ISessionEventHandler handler : safeList)
+			List<ISessionEventHandler> safeList = Collections.synchronizedList(this.eventHandlers);
+			synchronized (safeList)
 			{
-				handler.doEvent(eventType, e);
-			}
-		}		
+				for(ISessionEventHandler handler : safeList)
+				{
+					handler.doSessionEvent(eventType, e);
+				}
+			}	
+		}
+		catch (Exception exc)
+		{
+			Tracer.Log(this.getClass(), exc);
+		}
 	}
 	
 	@Override

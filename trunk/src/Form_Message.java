@@ -36,8 +36,9 @@ import ymsg.network.SessionFileTransferEvent;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
+import ymsg.support.SwingModelFactory;
 
-public class Form_Message extends JFrame implements ISessionEventHandler
+public class Form_Message extends BaseFrame implements ISessionEventHandler
 {
 	private JPanel mainContentPane;
 
@@ -68,12 +69,8 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	private JScrollPane spPanelMessage;
 
 	private JTextArea txtMessage;
-
-	private Session session;
 	
-	private SessionHandler sessionHandler;
-	
-	public  Document DisplayDoc;
+	private  Document DisplayDoc;
 	
 	private MessageDecoder decoder;
 	
@@ -82,19 +79,17 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	/**
 	 * This is the default constructor
 	 */
-	public Form_Message(Session session, SessionHandler sessionHandler)
+	public Form_Message()
 	{
 		super();
 		initializeComponents();
 		
-		this.session = session;			
-		this.sessionHandler = sessionHandler;
-		this.sessionHandler.addEventHandler(this);
+		sessionHandler.addEventReciever(this);
 		
 		//
 		//Decoder setting
 		//		
-		MessageDecoderSettings sets = new MessageDecoderSettings();		
+		MessageDecoderSettings sets = new MessageDecoderSettings();	
 		sets.setEmoticonsDecoded(true);
 		//sets.setRespectTextFade(true);
 		//sets.setRespectTextAlt(true);
@@ -189,7 +184,7 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 						me.appendToDocument(DisplayDoc);							
 						String temp = txtMessage.getText().trim();
 						txtMessage.setText(null);
-						Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
+						session.sendMessage(txtTo.getText().trim(), temp);
 						pushDown();
 					}
 				}
@@ -258,7 +253,7 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 							me.appendToDocument(DisplayDoc);							
 							String temp = txtMessage.getText().trim();
 							txtMessage.setText(null);
-							Form_Message.this.session.sendMessage(txtTo.getText().trim(), temp);
+							session.sendMessage(txtTo.getText().trim(), temp);
 							pushDown();
 						}
 					}
@@ -404,7 +399,6 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		me.appendToDocument(DisplayDoc);
 		pushDown();
 	}
-
 	
 	public void messageReceived(SessionEvent ev)
 	{
@@ -429,7 +423,7 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 	}
 	
 	@Override
-	public void doEvent(int eventType, SessionEvent e)
+	public void doSessionEvent(int eventType, SessionEvent e)
 	{
 		switch (eventType)
 		{
@@ -451,10 +445,16 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			SwingModelFactory factory = new SwingModelFactory(session);							
+			dlgMakeConference.setTreeModel(factory.createTreeModel(true));
+			
 			dlgMakeConference.setLocationRelativeTo(Form_Message.this);
 			
 			//Add the current friend'id to the conference list
 			dlgMakeConference.addUser(getFriendNick());
+			
+			//Set the host name.
+			dlgMakeConference.setHost(session.getLoginIdentity().getId());
 			
 			//Show the conference dialog.
 			dlgMakeConference.setVisible(true);
@@ -463,8 +463,12 @@ public class Form_Message extends JFrame implements ISessionEventHandler
 			if(option == JOptionPane.OK_OPTION)
 			{
 				//Show the Form_Conference;
-			}
-			
+				Form_Conference frmConference = new Form_Conference();
+				String[] users = dlgMakeConference.getUsers();
+				String msg = dlgMakeConference.getGreetingMessage();
+				frmConference.createConference(users, msg);
+				frmConference.setVisible(true);
+			}			
 		}		
 	}
 }

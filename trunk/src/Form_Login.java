@@ -3,14 +3,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
@@ -24,18 +21,16 @@ import ymsg.support.*;
  * @author MinhVH
  *
  */
-public class Form_Login extends JFrame implements ISessionEventHandler
+public class Form_Login extends BaseFrame implements ISessionEventHandler
 {
+	private JLabel lbLogo;
 	private JLabel lbUserName;
 	private JLabel lbPassWords;
-	private JLabel lbLogo;
 	private JTextField txtUserName;
 	private JPasswordField txtPassWords;
 	private JButton	btnLogin;
 	private JButton btnExit;
 	private Container container;
-	private Session session;
-	private SessionHandler sessionHandler;
 	private Form_List_Friend formListFriend;
 	private JCheckBox chkInvisible;
 	
@@ -43,7 +38,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	 * Initialize Component with default setting
 	 */
 	public void initilizeComponent()
-	{	
+	{		
 		//
 		// lbLogo
 		//
@@ -127,26 +122,24 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	 */
 	public Form_Login()
 	{
-		this.initilizeComponent();
-		
 		//Set up the path of log file to store all runtime exception.
 		Tracer.setLogFile(Constant.LOG_FILE);
+		this.initilizeComponent();	
 	}
 	
-	public SessionHandler getSessionHandler()
+	public SessionEventHandler getSessionHandler()
 	{
-		return this.sessionHandler;
+		return Form_Login.sessionHandler;
 	}
 	
 	public boolean login() throws Exception
 	{
-		this.session = new Session();
-		this.sessionHandler = new SessionHandler();
-		this.sessionHandler.addEventHandler(this);
-		this.session.addSessionListener(this.sessionHandler);
+		Form_Login.session = new Session();
+		Form_Login.sessionHandler = new SessionEventHandler();
+		Form_Login.sessionHandler.addEventReciever(this);
+		Form_Login.session.addSessionListener(sessionHandler);		
 		
-		
-		this.formListFriend = new Form_List_Friend(this.session, this.sessionHandler);
+		this.formListFriend = new Form_List_Friend();
 		String userName = this.txtUserName.getText().trim();
 		String passWord = "";
 		char[] tempPass = this.txtPassWords.getPassword();
@@ -157,12 +150,12 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		}
 		
 		if(this.chkInvisible.isSelected())
-			this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
+			session.setStatus(StatusConstants.STATUS_INVISIBLE);
 		else
-			this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
+			session.setStatus(StatusConstants.STATUS_AVAILABLE);
 		try
 		{
-			this.session.login(userName, passWord);
+			session.login(userName, passWord);
 		}
 		catch(LoginRefusedException ex)
 		{
@@ -221,7 +214,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	public void offlineMessageReceived(SessionEvent ev) 
 	{
 		String strFriend = ev.getFrom();
-		Form_Message formMessage = new Form_Message(session, this.sessionHandler);
+		Form_Message formMessage = new Form_Message();
 		formMessage.setTo(strFriend);
 		formMessage.setEditableForMessageField(true);
 		//formListFriend.listFormMessages.put(strFriend, formMessage);
@@ -237,7 +230,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 		int result = JOptionPane.showConfirmDialog(Form_Login.this, friendId + " want to make friend with you");
 		if(result == JOptionPane.OK_OPTION)
 		{
-			Form_Add_Friend formAddFriend = new Form_Add_Friend(session);
+			Form_Add_Friend formAddFriend = new Form_Add_Friend();
 			formAddFriend.txtUserId.setText(friendId);
 		}
 		else if(result == JOptionPane.CANCEL_OPTION)
@@ -259,7 +252,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	}		
 
 	@Override
-	public void doEvent(int eventType, SessionEvent e)
+	public void doSessionEvent(int eventType, SessionEvent e)
 	{
 		switch (eventType)
 		{
@@ -305,8 +298,7 @@ public class Form_Login extends JFrame implements ISessionEventHandler
 	        }
 			catch(Exception ex) 
 	        { 
-	        	session.reset();
-	        	
+	        	session.reset();	        	
 	        	Tracer.Log(this.getClass(), ex);
 	        }		
 		}

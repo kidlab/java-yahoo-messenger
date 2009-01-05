@@ -60,6 +60,24 @@ public class YahooConference
 	public String getName() { return room; }
 	public boolean isClosed() { return closed; }
 	public Vector getMembers() { return (Vector)users.clone(); }
+	
+	/**
+	 * 
+	 * @return An array of users in this conference.
+	 * @author MANVHT
+	 * Added on 5th JAN, 2009. Contact me at thanhman.gm@gmail.com
+	 */
+	public YahooUser[] getUsersArray()
+	{
+		int size = users.size();
+		YahooUser[] yUsers = new YahooUser[size];
+		for(int id = 0; id < size; id++)
+		{
+			yUsers[id] = (YahooUser)users.elementAt(id);
+		}
+		return yUsers;
+	}
+	
 	public YahooIdentity getIdentity() { return identity; }
 
 	public String toString()

@@ -2,7 +2,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.text.*;
-public class AutoCompleteBox extends PlainDocument {
+public class AutoCompleteBox extends PlainDocument 
+{
     JComboBox comboBox;
     ComboBoxModel model;
     JTextComponent editor;
