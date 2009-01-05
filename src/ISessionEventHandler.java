@@ -13,5 +13,5 @@ public interface ISessionEventHandler
 	 * @param e
 	 * 	The arguments of the fired event.
 	 */
-	public void doEvent(int eventType, SessionEvent e);
+	public void doSessionEvent(int eventType, SessionEvent e);
 }

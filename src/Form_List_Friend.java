@@ -37,13 +37,9 @@ import ymsg.network.StatusConstants;
 import ymsg.network.YahooGroup;
 import ymsg.network.YahooUser;
 
-public class Form_List_Friend extends JFrame implements ISessionEventHandler
+public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 {
 	private JTree friendTree;
-	
-	private Session session;
-	
-	private SessionHandler sessionHandler;
 	
 	private Form_Add_Friend formAddFriend;	
 	
@@ -75,12 +71,10 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	
 	public Hashtable <String, Form_Message> listFormMessages;
 	
-	public Form_List_Friend(Session session, SessionHandler sessionHandler)
+	public Form_List_Friend()
 	{
-		super("Buddy List");
-		this.session = session;		
-		this.sessionHandler = sessionHandler;
-		this.sessionHandler.addEventHandler(this);
+		this.setTitle("Buddy List");
+		sessionHandler.addEventReciever(this);
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -125,8 +119,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		           			 return;
 		           		 }		            		 	            		 
 		           	 }
-		           	 Form_Message formMessage = 
-		           		 new Form_Message(Form_List_Friend.this.session, Form_List_Friend.this.sessionHandler);
+		           	 Form_Message formMessage = new Form_Message();
 		           	 formMessage.setTitle(nick);
 		           	 formMessage.setVisible(true);	            	 
 		           	 
@@ -250,7 +243,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 			 {
 				 try
 				 {
-					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_AVAILABLE);
+					 session.setStatus(StatusConstants.STATUS_AVAILABLE);
 					 setMyStatus();
 				 }
 				 catch(IOException ex)
@@ -270,12 +263,12 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 			 {
 				 try
 				 {
-					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_BUSY);
+					 session.setStatus(StatusConstants.STATUS_BUSY);
 					 setMyStatus();
 				 }
-				 catch(IOException ex)
+				 catch(IOException exc)
 				 {
-					 
+					 Tracer.Log(Form_List_Friend.this.getClass(), exc);
 				 }
 			 }
 		 });
@@ -290,7 +283,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 			 {
 				 try
 				 {
-					 Form_List_Friend.this.session.setStatus(StatusConstants.STATUS_INVISIBLE);
+					 session.setStatus(StatusConstants.STATUS_INVISIBLE);
 					 setMyStatus();
 				 }
 				 catch(IOException ex)
@@ -308,7 +301,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {
-				 Form_Custom_Status customForm = new Form_Custom_Status(Form_List_Friend.this.session,Form_List_Friend.this);
+				 Form_Custom_Status customForm = new Form_Custom_Status(Form_List_Friend.this);
 				 customForm.setVisible(true);
 			 }
 		 });
@@ -321,7 +314,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {				
-				 formAddFriend = new Form_Add_Friend(Form_List_Friend.this.session);
+				 formAddFriend = new Form_Add_Friend();
 				 formAddFriend.setVisible(true);
 			 }
 		 });
@@ -367,7 +360,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		 String result = "";
 		 String temp = selPath.getLastPathComponent().toString();
     	 String check = temp.substring(0, 3);		            	 
-    	 if(check.equals("id="))
+    	 if(check.equals(Constant.ID_FORMAT))
     	 {
     		 int end = temp.indexOf(" ");
     		 int start = 3;
@@ -379,70 +372,8 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	
 	public void setModel(TreeModel treeModel) 
 	{ 
-		this.friendTree.setModel(treeModel); 
+		this.friendTree.setModel(treeModel);
 	}
-	
-	private class CellRenderer extends JLabel implements TreeCellRenderer
-	{	
-		public Component getTreeCellRendererComponent(JTree tree,Object value,
-			boolean selected,boolean expanded,boolean leaf,int row,boolean focus)
-		{	if(value instanceof YahooUser)
-			{	YahooUser yu = (YahooUser)value;
-				String status = "";
-				switch((int)yu.getStatus())
-				{
-					case (int)StatusConstants.STATUS_AVAILABLE:
-						status = "(online)";
-						break;
-					case (int)StatusConstants.STATUS_BUSY:
-						status = "(busy)";
-						break;
-					case (int)StatusConstants.STATUS_IDLE:
-						status = "(idle)";
-						break;
-					case (int)StatusConstants.STATUS_NOTATDESK:
-						status = "(not at my desk)";
-						break;
-					case (int)StatusConstants.STATUS_INVISIBLE:
-						status = "(invisible)";
-						break;
-					case (int)StatusConstants.STATUS_ONPHONE:
-						status = "(I'm on mobie)";
-						break;
-					case (int)StatusConstants.STATUS_ONVACATION:
-						status = "(on my vacation)";
-						break;
-					case (int)StatusConstants.STATUS_OFFLINE:
-						status = "(offline)";
-						break;
-					case (int)StatusConstants.STATUS_BAD:
-						status = "(bad)";
-						break;
-					case (int)StatusConstants.STATUS_BADUSERNAME:
-						status = "(badusername)";
-						break;					
-					case (int)StatusConstants.STATUS_COMPLETE:
-						status = "(complete)";
-						break;
-					case (int)StatusConstants.STATUS_CUSTOM:
-						status = "(" + yu.getCustomStatusMessage() + ")";
-						break;
-				}				
-				
-				//setIcon(new ImageIcon(getClass().getResource("image/online.gif")));
-				setText(yu.getId() + " " + status);
-				
-			}
-			else if(value instanceof YahooGroup)
-			{	setText( ((YahooGroup)value).getName() );				
-			}
-			else
-			{	setText(value.toString());
-			}
-			setBackground(selected ? Color.lightGray : Color.white);
-			return this;
-		}
-	}	
 	
 	private class ListPopupMenu  extends JPopupMenu 
 	{
@@ -468,7 +399,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 			
 			String strGroup = selPath.getParentPath().getLastPathComponent().toString();
 			String strFriend = getNickToAddressField(selPath);
-			this.session.removeFriend(strFriend, strGroup);
+			session.removeFriend(strFriend, strGroup);
 		}
 		catch (IllegalStateException ex) 
 		{
@@ -543,7 +474,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 		}
 		else
 		{
-			Form_Message formMessage = new Form_Message(session, this.sessionHandler);
+			Form_Message formMessage = new Form_Message();
 			formMessage.setTo(strFriend);
 			formMessage.setEditableForMessageField(true);
 			this.listFormMessages.put(strFriend, formMessage);
@@ -568,7 +499,7 @@ public class Form_List_Friend extends JFrame implements ISessionEventHandler
 	}
 	
 	@Override
-	public void doEvent(int eventType, SessionEvent e)
+	public void doSessionEvent(int eventType, SessionEvent e)
 	{
 		switch (eventType)
 		{

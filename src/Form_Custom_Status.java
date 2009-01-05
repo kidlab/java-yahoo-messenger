@@ -13,11 +13,8 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-import ymsg.network.Session;
-
-public class Form_Custom_Status extends JFrame
+public class Form_Custom_Status extends BaseFrame
 {
-	private Session session;
 	private JTextArea txtStatus;
 	private JButton bntOk;
 	private JButton bntCancel;
@@ -27,10 +24,9 @@ public class Form_Custom_Status extends JFrame
 	private JScrollPane spStatus;
 	private Form_List_Friend parent;
 	
-	public Form_Custom_Status(Session session, Form_List_Friend frmParent) {
-		// TODO Auto-generated constructor stub
+	public Form_Custom_Status(Form_List_Friend frmParent) 
+	{
 		super("Your custom status");
-		this.session = session;
 		this.parent = frmParent;
 		
 		//
@@ -94,7 +90,7 @@ public class Form_Custom_Status extends JFrame
 				{
 					try
 					{
-						Form_Custom_Status.this.session.setStatus(status, true);
+						session.setStatus(status, true);
 					}
 					catch(IOException ex)
 					{
@@ -105,7 +101,7 @@ public class Form_Custom_Status extends JFrame
 				{
 					try
 					{
-						Form_Custom_Status.this.session.setStatus(status, false);
+						session.setStatus(status, false);
 					}
 					catch(IOException ex)
 					{

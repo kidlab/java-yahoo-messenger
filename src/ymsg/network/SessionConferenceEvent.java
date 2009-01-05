@@ -15,10 +15,17 @@ public class SessionConferenceEvent extends SessionEvent
 	private YahooUser[] users;
 
 	public SessionConferenceEvent(Object o,String t,String f,String m,YahooConference r)
-	{	super(o,t,f,m);  room=r;
+	{	
+		super(o,t,f,m);  
+		room=r;
+		
+		//Added by MANVHT
+		users = room.getUsersArray();
 	}
 	public SessionConferenceEvent(Object o,String t,String f,String m,YahooConference r,YahooUser[] u)
-	{	this(o,t,f,m,r);  users=u;
+	{	
+		this(o,t,f,m,r);  
+		users=u;
 	}
 
 	public YahooConference getRoom() { return room; }

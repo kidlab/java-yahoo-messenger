@@ -1,9 +1,7 @@
 import java.awt.Dimension;
 import javax.swing.JFrame;
 /**
- * 
- * @author MinhVH
- *
+ * Contains the main method that start JYM.
  */
 public class Program
 {
@@ -21,8 +19,6 @@ public class Program
 			formLogin.setMinimumSize(new Dimension(350,450));
 			formLogin.setVisible(true);
 			formLogin.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-			//Form_Invite_Conference f = new Form_Invite_Conference(new Session(),new SessionHandler());
-			//f.setVisible(true);
 		}
 		catch (Exception exc) 
 		{

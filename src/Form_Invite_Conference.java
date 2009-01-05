@@ -19,11 +19,10 @@ public class Form_Invite_Conference extends JFrame
 	private Session session;
 	//private SessionHandler sessionHandler;
 	
-	public Form_Invite_Conference(Session session, SessionHandler sessionHandler)
+	public Form_Invite_Conference()
 	{
 		// TODO Auto-generated constructor stub
 		super("Invite Conferences");
-		this.session = session;
 		
 		DefaultMutableTreeNode top = new DefaultMutableTreeNode("Friend Yahoo ID");
 		
@@ -42,11 +41,7 @@ public class Form_Invite_Conference extends JFrame
 	    for(int i = 0; i < yg.length ; i ++)
 	    {
 	    	group = new DefaultMutableTreeNode(yg[i].getName());
-	    	top.add(group);
-	    	
+	    	top.add(group);	    	
 	    }
-
-	}
-	
-	
+	}	
 }

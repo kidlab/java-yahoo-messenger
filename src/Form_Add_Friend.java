@@ -6,13 +6,12 @@ import java.io.IOException;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import ymsg.network.*;
 
-public class Form_Add_Friend extends JFrame
+public class Form_Add_Friend extends BaseFrame
 {
 	private JLabel lbUserId;
 	private JLabel lbGroup;	
@@ -20,14 +19,12 @@ public class Form_Add_Friend extends JFrame
 	private JButton btnCancel;	
 	public JTextField txtUserId;
 	private JComboBox cbGroup;	
-	private Session session;
 	private Container container;
 	private AutoCompleteBox auBox;
 	
-	public Form_Add_Friend(Session session)
+	public Form_Add_Friend()
 	{
 		super("Add friend");
-		this.session = session;
 		
 		//
 		//lbUserId

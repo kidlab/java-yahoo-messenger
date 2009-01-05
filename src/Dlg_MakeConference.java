@@ -21,14 +21,20 @@ import java.awt.event.KeyEvent;
 import javax.swing.JTextArea;
 import javax.swing.JLabel;
 import javax.swing.JComboBox;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
+
+import ymsg.network.YahooGroup;
+import ymsg.network.YahooUser;
+import ymsg.support.SwingModelFactory;
 
 /**
  * The conference creator dialog box.
  *
  */
-public class Dlg_MakeConference extends GLobalDialog 
+public class Dlg_MakeConference extends BaseDialog 
 {
 	private static final long serialVersionUID = 1L;
 
@@ -142,6 +148,8 @@ public class Dlg_MakeConference extends GLobalDialog
 		//friendTree
 		//
 		friendTree = new JTree();
+		friendTree.setCellRenderer(new CellRenderer());
+		//friendTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		spListFriend.setViewportView(friendTree);	
 		
 		//
@@ -255,10 +263,15 @@ public class Dlg_MakeConference extends GLobalDialog
 		this.setContentPane(contentPane);
 	}
 	
+	public void setTreeModel(TreeModel treeModel)
+	{
+		this.friendTree.setModel(treeModel);
+	}
+	
 	/**
 	 * Get the array of all users in the conference.
 	 */
-	public String[] GetUsers()
+	public String[] getUsers()
 	{		
 		int size = this.lstInvitedUser.getModel().getSize();
 		String[] users = new String[size];
@@ -271,7 +284,7 @@ public class Dlg_MakeConference extends GLobalDialog
 		return users;
 	}
 	
-	public String GetGreetingMessage()
+	public String getGreetingMessage()
 	{
 		return this.txtMessage.getText();
 	}
@@ -287,6 +300,12 @@ public class Dlg_MakeConference extends GLobalDialog
 			return;
 			
 		this.listModel.addElement(userID);
+	}
+	
+	public void setHost(String hostName)
+	{
+		this.cbbHost.addItem(hostName);
+		this.cbbHost.setSelectedItem(hostName);
 	}
 	
 	private class InviteActionListener implements ActionListener
@@ -312,27 +331,32 @@ public class Dlg_MakeConference extends GLobalDialog
 	{		
 		public void actionPerformed(java.awt.event.ActionEvent e)
 		{
-			TreePath selPath = friendTree.getSelectionPath();			
-			TreeNode node = (TreeNode)selPath.getLastPathComponent();	
-			int count = node.getChildCount();
+			TreeModel treeModel = friendTree.getModel();
+			TreePath selPath = friendTree.getSelectionPath();
+			Object selectedObj = selPath.getLastPathComponent();
+			int count = treeModel.getChildCount(selectedObj);			
 			
 			//If count <= 0, this node is a Yahoo ID, so add right to the list
 			if(count <= 0)
 			{
-				String selectedUser = selPath.getLastPathComponent().toString();
-				addUser(selectedUser);
+				String selectedUser = Helper.GetUserID(selectedObj.toString());
+				if(!selectedUser.isEmpty())
+					addUser(selectedUser);
 			}
 			//Else, this node may be a group, then add all its child-nodes to the list.
 			else
 			{
 				int pathCount = selPath.getPathCount();
 				if(pathCount == 2)
-				{
+				{				
 					//Add all IDs of this group to the invited list.
 					for(int index = 0; index < count; index++)
 					{
-						TreeNode childNode = node.getChildAt(index);
-						addUser(childNode.toString());
+						Object childNode = treeModel.getChild(selectedObj, index);
+						String strTemp = childNode.toString();
+						String userID = Helper.GetUserID(strTemp);
+						if(!userID.isEmpty())
+							addUser(userID);
 					}
 				}
 			}				
