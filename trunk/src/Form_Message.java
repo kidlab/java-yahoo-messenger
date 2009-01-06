@@ -485,6 +485,7 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
+			showConferenceDialog();
 		}		
 	}
 }

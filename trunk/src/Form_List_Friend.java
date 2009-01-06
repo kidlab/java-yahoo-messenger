@@ -30,6 +30,7 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
 import javax.swing.border.LineBorder;
+import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeCellRenderer;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
@@ -56,11 +57,13 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	
 	private JMenu statusMenu;
 	
-	private JMenuItem logoutItem;
+	private JMenuItem exitItem;
 	
 	private JMenuItem addfriendItem;
 	
 	private JMenuItem conferenceItem;
+	
+	private JMenuItem logOutItem;
 	
 	private JMenuItem online;
 	
@@ -88,8 +91,11 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	
 	public Hashtable <String, Form_Message> listFormMessages;
 	
-	public Form_List_Friend()
+	private Form_Login parent;
+	
+	public Form_List_Friend(Form_Login parent)
 	{
+		this.parent = parent;
 		this.setTitle("Buddy List");
 		sessionHandler.addEventReceiver(this);
 		
@@ -233,8 +239,8 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		 //
 		 //Logout item
 		 //
-		 this.logoutItem = new JMenuItem("Exit");
-		 this.logoutItem.addActionListener(new ActionListener()
+		 this.exitItem = new JMenuItem("Exit");
+		 this.exitItem.addActionListener(new ActionListener()
 		 {
 			 public void actionPerformed(ActionEvent e)
 			 {
@@ -348,12 +354,34 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		 });
 		 
 		 //
+		 //logOutItem
+		 //
+		 this.logOutItem = new JMenuItem("Logout");
+		 this.logOutItem.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {		
+				 try
+				 {
+					 session.logout();
+					 Form_List_Friend.this.setVisible(false);
+					 Form_List_Friend.this.parent.setVisible(true);
+				 }
+				 catch (Exception ex)
+				 {
+					 Tracer.Log(Form_List_Friend.this.getClass(), ex);
+				 }
+			 }
+		 });
+		 
+		 //
 		 //BuddyMenu
 		 //
 		 this.buddyMenu = new JMenu("Buddy");
 		 this.buddyMenu.add(this.addfriendItem);
 		 this.buddyMenu.add(this.conferenceItem);
-		 this.buddyMenu.add(this.logoutItem);
+		 //this.buddyMenu.add(this.logOutItem);
+		 this.buddyMenu.add(this.exitItem);
 		 
 		 //
 		 //Status Menu

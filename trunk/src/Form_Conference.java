@@ -199,7 +199,7 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		btnIgnoreUser = new JButton();
 		btnIgnoreUser.setText("Ignore User");
 		btnIgnoreUser.addActionListener(new IgnoreUserActionListener());
-		panelUsers.add(btnIgnoreUser, BorderLayout.SOUTH);
+		//panelUsers.add(btnIgnoreUser, BorderLayout.SOUTH);
 		
 		//
 		//spUsers
@@ -214,7 +214,6 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		
 		listModel = new DefaultListModel();
 		lstUsers = new JList(listModel);
-		lstUsers = new JList();
 		
 		spUsers.setViewportView(lstUsers);
 		panelUsers.add(spUsers, BorderLayout.CENTER);
@@ -520,6 +519,13 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 	{
 		String strFrom = ev.getFrom();
 		String strMessage = ev.getMessage();
+		
+		String currentUser = session.getLoginIdentity().getId();
+		
+		//Check if I invite myself!
+		if(currentUser.equals(strFrom))
+			return;
+		
 		int selectedValue = 
 			Helper.ConfirmWithCancel("You are invited to join the conference from: " + strFrom + ". Greeting message: " + strMessage);
 		if(selectedValue == JOptionPane.YES_OPTION)
@@ -547,7 +553,6 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 				break;
 				
 			case ServiceConstants.SERVICE_CONFINVITE:
-				this.conferenceInviteReceived((SessionConferenceEvent)e);
 				break;
 				
 			default:
