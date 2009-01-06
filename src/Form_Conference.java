@@ -9,6 +9,7 @@ import javax.swing.JButton;
 import java.awt.GridBagConstraints;
 
 import javax.swing.DefaultListModel;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSplitPane;
 import javax.swing.JScrollPane;
@@ -20,10 +21,14 @@ import java.awt.Color;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.IOException;
+
 import javax.swing.border.SoftBevelBorder;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 
+import ymsg.network.FileTransferFailedException;
 import ymsg.network.ServiceConstants;
 import ymsg.network.SessionConferenceEvent;
 import ymsg.network.SessionEvent;
@@ -33,6 +38,7 @@ import ymsg.network.YahooIdentity;
 import ymsg.support.MessageDecoder;
 import ymsg.support.MessageDecoderSettings;
 import ymsg.support.MessageElement;
+import ymsg.support.SwingModelFactory;
 
 public class Form_Conference extends BaseFrame implements ISessionEventHandler
 {
@@ -80,6 +86,8 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 	
 	private JList lstUsers = null;
 
+	private Dlg_MakeConference dlgMakeConference = null;
+	
 	/**
 	 * This is the default constructor
 	 */
@@ -88,7 +96,7 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		super();
 		initialize();
 		
-		sessionHandler.addEventReciever(this);
+		sessionHandler.addEventReceiver(this);
 		this.displayDoc = this.txtConference.getDocument();
 		
 		MessageDecoderSettings sets = new MessageDecoderSettings();		
@@ -125,6 +133,11 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		btnSendFile = new JButton();
 		btnSendFile.setText("Send File");
 		btnSendFile.addActionListener(new SendFileActionListener());
+		
+		//This feature is not supported now
+		btnSendFile.setVisible(false);
+		btnSendFile.setEnabled(false);
+		
 		mainToolBar.add(btnSendFile);
 		
 		//
@@ -301,10 +314,75 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 		}
 	}
 	
+	private void showConferenceDialog()
+	{
+		try
+		{
+			SwingModelFactory factory = new SwingModelFactory(session);	
+			this.dlgMakeConference = new Dlg_MakeConference(this, true);
+			dlgMakeConference.setTreeModel(factory.createTreeModel(true));
+			
+			dlgMakeConference.setLocationRelativeTo(this);
+			
+			//Set the host name.
+			dlgMakeConference.setHost(session.getLoginIdentity().getId());
+			
+			//Show the conference dialog.
+			dlgMakeConference.setVisible(true);
+			
+			int option = dlgMakeConference.getSelectedValue();
+			if(option == JOptionPane.OK_OPTION)
+			{
+				//Show the Form_Conference;
+				Form_Conference frmConference = new Form_Conference();
+				String[] users = dlgMakeConference.getUsers();
+				String msg = dlgMakeConference.getGreetingMessage();
+				frmConference.createConference(users, msg);
+				frmConference.setVisible(true);
+			}
+		}
+		catch (Exception exc) 
+		{
+			Tracer.Log(this.getClass(), exc);
+			Helper.Error(UserMsg.MAKE_CONFERENCE_FAILED);
+		}
+	}
+	
 	private class SendFileActionListener implements ActionListener
 	{
 		public void actionPerformed(java.awt.event.ActionEvent e)
 		{
+			try
+			{
+				/*File file = null;
+				JFileChooser choose = new JFileChooser();
+				choose.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+				int result = choose.showOpenDialog(Form_Conference.this.getContentPane());
+				if(result == JFileChooser.APPROVE_OPTION)
+				{
+					file = choose.getSelectedFile();
+					String path = file.getAbsolutePath();
+					try
+					{
+						session.sendFileTransfer(txtTo.getText(), path, "");
+					}
+					catch(IOException ex)
+					{
+						
+					}
+					catch(FileTransferFailedException ex)
+					{
+						MessageElement me = decoder.decode("Send file failed");			
+						me.appendToDocument(displayDoc);
+						pushDown();
+					}
+				}*/
+			}
+			catch (Exception exc) 
+			{
+				Tracer.Log(Form_Conference.this.getClass(), exc);
+				Helper.Error(UserMsg.SEND_FILE_FAILED);
+			}
 		}
 	}
 	
@@ -312,6 +390,7 @@ public class Form_Conference extends BaseFrame implements ISessionEventHandler
 	{
 		public void actionPerformed(java.awt.event.ActionEvent e)
 		{
+			showConferenceDialog();
 		}
 	}
 	

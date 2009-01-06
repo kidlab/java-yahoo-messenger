@@ -1,3 +1,7 @@
+import java.awt.Image;
+import java.net.URL;
+
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -81,4 +85,32 @@ public class Helper
     	
     	return userID;
 	}
+	
+	/**
+	 * Obtain the image URL.
+	 * @param path
+	 * @param description
+	 * @return
+	 */
+    protected static Image createImage(String path, String description)
+    {
+    	try
+    	{
+    		URL imageURL = Helper.class.getResource(path);
+            
+            if (imageURL == null) 
+            {
+                System.err.println("Resource not found: " + path);
+                return null;
+            } else 
+            {
+                return (new ImageIcon(imageURL, description)).getImage();
+            }
+    	}
+        catch (Exception exc) 
+        {
+			Tracer.Log("Helper", exc);
+			return null;
+		}
+    }
 }
