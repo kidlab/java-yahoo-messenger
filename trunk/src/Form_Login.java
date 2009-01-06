@@ -127,7 +127,7 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 		this.initilizeComponent();	
 	}
 	
-	public SessionEventHandler getSessionHandler()
+	public SessionEventListener getSessionHandler()
 	{
 		return Form_Login.sessionHandler;
 	}
@@ -135,8 +135,8 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 	public boolean login() throws Exception
 	{
 		Form_Login.session = new Session();
-		Form_Login.sessionHandler = new SessionEventHandler();
-		Form_Login.sessionHandler.addEventReciever(this);
+		Form_Login.sessionHandler = new SessionEventListener();
+		Form_Login.sessionHandler.addEventReceiver(this);
 		Form_Login.session.addSessionListener(sessionHandler);		
 		
 		this.formListFriend = new Form_List_Friend();

@@ -14,14 +14,14 @@ import ymsg.network.SessionListener;
 import ymsg.network.SessionNewMailEvent;
 import ymsg.network.SessionNotifyEvent;
 
-public class SessionEventHandler implements SessionListener
+public class SessionEventListener implements SessionListener
 {
 	private List<ISessionEventHandler> eventHandlers;
 	
 	/**
 	 * Initialize a new instance of SessionHandler with the default settings.
 	 */
-	public SessionEventHandler()
+	public SessionEventListener()
 	{
 		this.eventHandlers = new ArrayList<ISessionEventHandler>();
 	}
@@ -51,7 +51,7 @@ public class SessionEventHandler implements SessionListener
 	 * @param handler
 	 * 	A listener that derives from or implements of {@link ISessionEventHandler}.
 	 */
-	public void addEventReciever(ISessionEventHandler handler)
+	public void addEventReceiver(ISessionEventHandler handler)
 	{		
 		try
 		{

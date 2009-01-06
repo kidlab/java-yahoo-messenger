@@ -84,7 +84,7 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 		super();
 		initializeComponents();
 		
-		sessionHandler.addEventReciever(this);
+		sessionHandler.addEventReceiver(this);
 		
 		//
 		//Decoder setting
@@ -442,6 +442,9 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 	{
 		try
 		{
+			//String currentUser = session.getLoginIdentity().getId();
+			//String strFrom = ev.getFrom();
+			
 			SwingModelFactory factory = new SwingModelFactory(session);	
 			dlgMakeConference = new Dlg_MakeConference(Form_Message.this, true);
 			dlgMakeConference.setTreeModel(factory.createTreeModel(true));
@@ -480,7 +483,6 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
-			
 		}		
 	}
 }

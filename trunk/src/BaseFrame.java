@@ -14,14 +14,14 @@ public class BaseFrame extends JFrame
 	/**
 	 * The session event handler object will be used for this class and all of its derive class.
 	 */
-	protected static SessionEventHandler sessionHandler;
+	protected static SessionEventListener sessionHandler;
 	
 	public BaseFrame()
 	{
 		super();
 	}
 	
-	public BaseFrame(Session session, SessionEventHandler handler)
+	public BaseFrame(Session session, SessionEventListener handler)
 	{
 		super();
 		BaseFrame.session = session;

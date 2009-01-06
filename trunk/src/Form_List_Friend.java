@@ -1,8 +1,14 @@
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Desktop;
+import java.awt.Image;
+import java.awt.MenuItem;
+import java.awt.PopupMenu;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -54,6 +60,8 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	
 	private JMenuItem addfriendItem;
 	
+	private JMenuItem conferenceItem;
+	
 	private JMenuItem online;
 	
 	private JMenuItem invisible;
@@ -72,6 +80,10 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	
 	private JLabel lbMyStatus;
 	
+	private TrayIcon trayIcon;
+	
+	private Dlg_MakeConference dlgMakeConference;
+	
 	private Form_Conference frmConference;
 	
 	public Hashtable <String, Form_Message> listFormMessages;
@@ -79,7 +91,7 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	public Form_List_Friend()
 	{
 		this.setTitle("Buddy List");
-		sessionHandler.addEventReciever(this);
+		sessionHandler.addEventReceiver(this);
 		
 		this.friendTree = new JTree();
 		this.friendTree.setCellRenderer(new CellRenderer());
@@ -209,8 +221,7 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		 //lbMyStatus
 		 //
 		 String status = getMyStatus();
-		 this.lbMyStatus = new JLabel("My Status: " + status);
-		 
+		 this.lbMyStatus = new JLabel("My Status: " + status);		 
 		 
 		 //
 		 //top Panel
@@ -325,10 +336,23 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		 });
 		 
 		 //
+		 //conferenceItem
+		 //
+		 this.conferenceItem = new JMenuItem("Conference...");
+		 this.conferenceItem.addActionListener(new ActionListener()
+		 {
+			 public void actionPerformed(ActionEvent e)
+			 {				
+				 showConferenceDialog();
+			 }
+		 });
+		 
+		 //
 		 //BuddyMenu
 		 //
 		 this.buddyMenu = new JMenu("Buddy");
 		 this.buddyMenu.add(this.addfriendItem);
+		 this.buddyMenu.add(this.conferenceItem);
 		 this.buddyMenu.add(this.logoutItem);
 		 
 		 //
@@ -356,7 +380,9 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 		pack();
 		this.setSize(350,550);
 		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.showTrayIcon();
+		
+		//this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	
 	public String getNickToAddressField(TreePath selPath)
@@ -506,7 +532,13 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 	{
 		try
 		{
+			String currentUser = session.getLoginIdentity().getId();
 			String strFrom = ev.getFrom();
+		
+			//Check if I invite myself!
+			if(currentUser.equals(strFrom))
+				return;
+			
 			String strMessage = ev.getMessage();
 			int selectedValue = 
 				Helper.ConfirmWithCancel("You are invited to join the conference from: " + strFrom + ". Greeting message: " + strMessage);
@@ -560,5 +592,132 @@ public class Form_List_Friend extends BaseFrame implements ISessionEventHandler
 			default:
 				break;
 		}
+	}
+	
+	private void showConferenceDialog()
+	{
+		try
+		{
+			this.dlgMakeConference = new Dlg_MakeConference(this, true);
+			dlgMakeConference.setTreeModel(this.friendTree.getModel());
+			
+			dlgMakeConference.setLocationRelativeTo(this);
+			
+			//Set the host name.
+			dlgMakeConference.setHost(session.getLoginIdentity().getId());
+			
+			//Show the conference dialog.
+			dlgMakeConference.setVisible(true);
+			
+			int option = dlgMakeConference.getSelectedValue();
+			if(option == JOptionPane.OK_OPTION)
+			{
+				//Show the Form_Conference;
+				Form_Conference frmConference = new Form_Conference();
+				String[] users = dlgMakeConference.getUsers();
+				String msg = dlgMakeConference.getGreetingMessage();
+				frmConference.createConference(users, msg);
+				frmConference.setVisible(true);
+			}
+		}
+		catch (Exception exc) 
+		{
+			Tracer.Log(this.getClass(), exc);
+			Helper.Error(UserMsg.MAKE_CONFERENCE_FAILED);
+		}
+	}
+	
+	private void showTrayIcon()
+	{
+		try
+		{
+			//Check if SystemTray is supported. If not supported we exit
+			if (!SystemTray.isSupported()) 
+			{
+			   System.err.println("Your operating system does not support SystemTray.");
+			   return;
+			}
+			
+			SystemTray systemTray = SystemTray.getSystemTray();
+			
+			//Load an image for the tray icon. loadImage() is a private method
+			//not shown here
+			Image iconImage = Helper.createImage(Constant.PATH_TRAY_ICON, Constant.PROGRAM_NAME);
+
+			//Create the popup menu and add some menu item to it
+			PopupMenu popupMenu = new PopupMenu("Actions");
+
+			MenuItem menuItemShow = new MenuItem("Show JYM");
+			
+			menuItemShow.addActionListener(new TrayIconShowActionListener());
+
+			MenuItem menuItemExit = new MenuItem("Exit JYM");
+			//Set a unique command name for this particular menu item
+			
+			menuItemExit.addActionListener(new TrayIconExitActionListener());
+
+			//Assume that the class has implemented ActionListener
+			//menuItem.addActionListener(this /* handler */);
+
+			//Add the menu item to the popup menu
+			popupMenu.add(menuItemShow);
+			
+			//Add the menu item to the popup menu
+			popupMenu.add(menuItemExit);
+
+			//Create the TrayIcon
+			this.trayIcon = new TrayIcon(iconImage, Constant.PROGRAM_NAME, popupMenu);
+			
+			this.trayIcon.addMouseListener(new TrayIconMouseListener());
+			
+			try 
+			{
+	            systemTray.add(trayIcon);
+	        } 
+			catch (AWTException exc) 
+			{
+				Tracer.Log(this.getClass(), exc);
+	            System.out.println("TrayIcon could not be added.");
+	            return;
+	        }
+		}
+		catch (Exception exc) 
+		{
+			Tracer.Log(this.getClass(), exc);
+            System.out.println("TrayIcon could not be showed.");
+            return;
+		}		
+	}
+	
+	private class TrayIconExitActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{	
+			System.exit(0);
+		}
+	}
+	
+	private class TrayIconShowActionListener implements ActionListener
+	{
+		public void actionPerformed(ActionEvent e)
+		{	
+			Form_List_Friend.this.setVisible(true);
+		}
+	}
+	
+	private class TrayIconMouseListener extends MouseAdapter
+	{
+		 public void mousePressed(MouseEvent e) 
+	     {
+			 //if the pressed button is not right button.
+			 if(e.isMetaDown())
+				return;	    	 
+		             
+			 //Allow only double clicks.
+		     if(e.getClickCount() == 2)
+		     {
+		       	 Form_List_Friend.this.setVisible(true);
+		     }
+	     }
 	}
 }
