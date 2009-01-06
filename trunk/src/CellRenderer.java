@@ -1,6 +1,7 @@
 import java.awt.Color;
 import java.awt.Component;
 
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JTree;
 import javax.swing.tree.TreeCellRenderer;
@@ -20,10 +21,12 @@ public class CellRenderer extends JLabel implements TreeCellRenderer
 		{	if(value instanceof YahooUser)
 			{	YahooUser yu = (YahooUser)value;
 				String status = "";
+				//ImageIcon icon = null;
 				switch((int)yu.getStatus())
 				{
 					case (int)StatusConstants.STATUS_AVAILABLE:
 						status = "(online)";
+						//icon = new ImageIcon(getClass().getResource("image/online.gif"));
 						break;
 					case (int)StatusConstants.STATUS_BUSY:
 						status = "(busy)";
@@ -60,7 +63,7 @@ public class CellRenderer extends JLabel implements TreeCellRenderer
 						break;
 				}				
 				
-				//setIcon(new ImageIcon(getClass().getResource("image/online.gif")));
+				//setIcon(icon);
 				setText(yu.getId() + " " + status);
 				
 			}
