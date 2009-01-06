@@ -139,7 +139,7 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 		Form_Login.sessionHandler.addEventReceiver(this);
 		Form_Login.session.addSessionListener(sessionHandler);		
 		
-		this.formListFriend = new Form_List_Friend();
+		this.formListFriend = new Form_List_Friend(this);
 		String userName = this.txtUserName.getText().trim();
 		String passWord = "";
 		char[] tempPass = this.txtPassWords.getPassword();
@@ -156,6 +156,7 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 		try
 		{
 			session.login(userName, passWord);
+			this.clear();
 			formListFriend.setVisible(true);
 		}
 		catch(LoginRefusedException ex)
@@ -178,6 +179,12 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 		}
 		
 		return true;
+	}
+	
+	private void clear()
+	{
+		this.txtPassWords.setText(null);
+		this.txtUserName.setText(null);
 	}
 	
 	private class ButtonLoginAction implements ActionListener
@@ -261,9 +268,9 @@ public class Form_Login extends BaseFrame implements ISessionEventHandler
 				this.offlineMessageReceived(e);
 				break;			
 				
-			case ServiceConstants.SERVICE_CONTACTNEW:
+			/*case ServiceConstants.SERVICE_CONTACTNEW:
 				this.contactRequestReceived(e);
-				break;
+				break;*/
 				
 			case ServiceConstants.SERVICE_CONTACTREJECT:
 				this.contactRejectionReceived(e);
