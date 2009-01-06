@@ -117,7 +117,7 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 				JFileChooser choose = new JFileChooser();
 				choose.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				int result = choose.showOpenDialog(Form_Message.this.mainContentPane);
-				if(result == JFileChooser.APPROVE_OPTION)
+				if(result == JFileChooser.OPEN_DIALOG)
 				{
 					file = choose.getSelectedFile();
 					String path = file.getAbsolutePath();
@@ -134,6 +134,8 @@ public class Form_Message extends BaseFrame implements ISessionEventHandler
 						pushDown();
 					}
 				}
+				else
+					return;
 			}
 		});
 		
